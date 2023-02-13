@@ -7,10 +7,14 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -24,7 +28,6 @@ public class PapagoAPI extends AppCompatActivity {
     EditText et_target;
     TextView textView;
     Button btn ;
-    String getresult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +65,7 @@ public class PapagoAPI extends AppCompatActivity {
 
             String clientId = "VUvojadVo0GKid8tsZsw";     //애플리케이션 클라이언트 아이디값";
             String clientSecret = "ckhZz7Rr4T";      //애플리케이션 클라이언트 시크릿값";
+            String result = "";
             try {
                 String text = URLEncoder.encode(et_target.getText().toString(), "UTF-8");  /// 번역할 문장 Edittext  입력
 
@@ -91,20 +95,23 @@ public class PapagoAPI extends AppCompatActivity {
                     response.append(inputLine);
                 }
                 br.close();
-                System.out.println(response.toString());
-                //        textView.setText(response.toString());
-                getresult = response.toString();
-
-                getresult = getresult.split("\"")[27];   //스플릿으로 번역된 결과값만 가져오기
-                textView.setText(getresult); //  텍스트뷰에  SET해주기
-
-
-
-
+                result = response.toString();
             } catch (Exception e) {
                 System.out.println(e);
+                result = "번역 실패";
             }
-            return null;
+            Log.d("papago", result);
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            JsonParser jsonParser = new JsonParser();
+            JsonElement jsonElement = jsonParser.parse(s);
+            String outputResult = jsonElement.getAsJsonObject().get("message").getAsJsonObject().get("result")
+                    .getAsJsonObject().get("translatedText").getAsString();
+            textView.setText(outputResult);
         }
     }
 }
