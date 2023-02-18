@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -16,12 +16,12 @@
         android:theme="@style/Theme.EBookBGM"
         tools:targetApi="31">
         <activity
+            android:name=".ChapterList"
+            android:exported="false" />
+        <activity
             android:name=".radeffactory"
             android:exported="false"
-            android:label="@string/app_name"
-            >
-        </activity>
-
+            android:label="@string/app_name"></activity>
         <activity
             android:name=".LoadActivity"
             android:exported="false">
