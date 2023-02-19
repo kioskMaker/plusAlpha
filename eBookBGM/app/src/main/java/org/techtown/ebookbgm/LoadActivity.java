@@ -1,52 +1,27 @@
 package org.techtown.ebookbgm;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.ml.common.FirebaseMLException;
-import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditions;
-import com.google.firebase.ml.common.modeldownload.FirebaseModelManager;
-import com.google.firebase.ml.custom.FirebaseCustomLocalModel;
-import com.google.firebase.ml.custom.FirebaseCustomRemoteModel;
-import com.google.firebase.ml.custom.FirebaseModelDataType;
-import com.google.firebase.ml.custom.FirebaseModelInputOutputOptions;
-import com.google.firebase.ml.custom.FirebaseModelInputs;
-import com.google.firebase.ml.custom.FirebaseModelInterpreter;
-import com.google.firebase.ml.custom.FirebaseModelInterpreterOptions;
-import com.google.firebase.ml.custom.FirebaseModelOutputs;
-import com.google.firebase.ml.modeldownloader.CustomModel;
-import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions;
-import com.google.firebase.ml.modeldownloader.DownloadType;
-import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader;
-import com.google.mediapipe.tasks.text.textclassifier.TextClassifier;
-import com.google.mediapipe.tasks.text.textembedder.TextEmbedder;
+import okhttp3.MediaType;
 
 import org.json.JSONException;
 import org.tensorflow.lite.Interpreter;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class LoadActivity extends AppCompatActivity {
 
@@ -54,9 +29,9 @@ public class LoadActivity extends AppCompatActivity {
     String str1 = "it gets better. without explanation; you just wake up one morning and youâ€™re just happy, totally and utterly elated.";
     String str2 = "i am not at all happy";
     String str = "";
-    String[] emotion = {"anger", "boredom", "empty", "enthusiasm", "fear", "fun", "happiness",
-            "hate" ,"love", "neutral", "relief", "sadness", "surprise", "worry"};
+    final static String FILE_NAME = "aliceinwonderland_chaper_divided";
     Interpreter interpreter;
+    String responseString;
     @Override
     public void finish() {
         super.finish();
@@ -74,14 +49,6 @@ public class LoadActivity extends AppCompatActivity {
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
-
-
-//        try {
-//            FirebaseSetting();
-//        } catch (FirebaseMLException e) {
-//            e.printStackTrace();
-//            Log.d("MyModel", "exception 1");
-//        }
 
         //emotion analysis button
         Button button_analysis = findViewById(R.id.button_analysis);
@@ -131,42 +98,45 @@ public class LoadActivity extends AppCompatActivity {
             }
         });
 
+        RapidAPIonThread(str1);
+
     }
 
-    private void FirebaseSetting() throws FirebaseMLException {
-        CustomModelDownloadConditions conditions = new CustomModelDownloadConditions.Builder()
-                .requireWifi()  // Also possible: .requireCharging() and .requireDeviceIdle()
+    private void RapidAPIonThread(String text){
+        new Thread(()->{
+            try {
+                RapidAPI(text);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.d("http", "RapidAPI exception");
+            }
+        }).start();
+    }
+
+    private void RapidAPI(String text) throws IOException {
+        OkHttpClient client = new OkHttpClient();
+
+        MediaType mediaType = MediaType.parse("application/json");
+        String value = "{\r\n    \"sentence\": \"" + text + "\"\r\n}";
+        RequestBody body = RequestBody.create(mediaType, value);
+        Request request = new Request.Builder()
+                .url("https://emodex-emotions-analysis.p.rapidapi.com/rapidapi/emotions")
+                .post(body)
+                .addHeader("content-type", "application/json")
+                .addHeader("X-RapidAPI-Key", "501446e123mshee70949ebe79345p10c707jsn24ee4321df32")
+                .addHeader("X-RapidAPI-Host", "emodex-emotions-analysis.p.rapidapi.com")
                 .build();
-        FirebaseModelDownloader.getInstance()
-                .getModel("emotion_analysis", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions)
-                .addOnSuccessListener(new OnSuccessListener<CustomModel>() {
-                    @Override
-                    public void onSuccess(CustomModel model) {
-                        // Download complete. Depending on your app, you could enable the ML
-                        // feature, or switch from the local model to the remote model, etc.
 
-                        // The CustomModel object contains the local path of the model file,
-                        // which you can use to instantiate a TensorFlow Lite interpreter.
-                        File modelFile = model.getFile();
-                        if (modelFile != null) {
-                            interpreter = new Interpreter(modelFile);
-                        }
-                    }
-                });
-
-    }
-    private String FirebaseInput(String text){
-        ByteBuffer input = ByteBuffer.allocateDirect(1*400*4).order(ByteOrder.nativeOrder());
-        ByteBuffer modelOutput = ByteBuffer.allocateDirect(1 * 400 * 4).order(ByteOrder.nativeOrder());
-        interpreter.run(input, modelOutput);
-        String ans = "";
-        for(int i=0;i<emotion.length;i++){
-            ans = ans + emotion[i] + " : " + modelOutput.get(i) + "\n";
+        Response response = client.newCall(request).execute();
+        if(response.isSuccessful()){
+            responseString = response.body().string();
+            Log.d("http", responseString);
+            response.body().close();
         }
-
-        Log.d("MyModel", "exception2");
-        return ans;
     }
+
+
+
 
 
 }
