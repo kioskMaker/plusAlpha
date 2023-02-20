@@ -1,10 +1,10 @@
 package org.techtown.ebookbgm;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager.widget.ViewPager;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ViewPager;
 import android.text.TextPaint;
 import android.view.ViewTreeObserver;
 
