@@ -43,7 +43,7 @@
             android:textSize="12sp" />
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/button_pageActivity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"

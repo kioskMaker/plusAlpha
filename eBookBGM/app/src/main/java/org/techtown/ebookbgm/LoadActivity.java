@@ -2,6 +2,7 @@ package org.techtown.ebookbgm;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
@@ -10,12 +11,26 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.MediaType;
 
+import org.checkerframework.checker.units.qual.A;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.tensorflow.lite.Interpreter;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.ArrayList;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -30,76 +45,60 @@ public class LoadActivity extends AppCompatActivity {
     String str2 = "i am not at all happy";
     String str = "";
     final static String FILE_NAME = "aliceinwonderland_chaper_divided";
-    Interpreter interpreter;
+    final static String INTERNAL_STORAGE_FILE_PATH = "/data/data/org.techtown.ebookbgm/files/";
+    final static String CHAPTER_EMOTION_LIST_FILE_NAME = "chapterEmotionList.txt";
     String responseString;
-    @Override
-    public void finish() {
-        super.finish();
-        interpreter.close();
-    }
+    ArrayList<String[]> emotion_line_list = new ArrayList<String[]>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_load);
 
-        emotionClassifier = new EmotionClassifier(this);
         try {
-            emotionClassifier.init();
-        } catch (IOException | JSONException e) {
+            writeChapterEmotionList();
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
-        //emotion analysis button
         Button button_analysis = findViewById(R.id.button_analysis);
-        TextView textView_analysis = findViewById(R.id.text_analysis);
-
         button_analysis.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Pair[] emotion_result = emotionClassifier.classify(str);
-                String str = "";
-                float max_emotion = 0;
-                int max_position = 0;
-                for(int i=0;i<emotion_result.length;i++){
-                    str = str + emotion_result[i].first + " : " + emotion_result[i].second + "\n";
-                    if(max_emotion < (float)emotion_result[i].second){
-                        max_position = i;
-                        max_emotion = (float)emotion_result[i].second;
-                    }
+                String path = INTERNAL_STORAGE_FILE_PATH +FILE_NAME+"/";
+                File chapterEmotionListFile = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME);
+                if(chapterEmotionListFile.exists()){
+                    Toast.makeText(getApplicationContext(), "ok", Toast.LENGTH_LONG).show();
                 }
-                str = str + "MAX = " + emotion_result[max_position].first + " : " + emotion_result[max_position].second;
-                textView_analysis.setText(str);
-                Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_LONG).show();
-
-
             }
         });
+    }
 
-        //set test String
-        TextView example = findViewById(R.id.example);
+    private void readText10line(int input) throws IOException {
+        AssetManager assetManager = getAssets();
+        InputStream is = assetManager.open(FILE_NAME + "/chapter_en/chapter"+input+"_en.txt");
 
-        Button example1 = findViewById(R.id.example1);
-        example1.setText(str1);
-        example1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                str = str1;
-                example.setText(str);
+        StringBuilder text = new StringBuilder();
+        int count = 0;
+        try{
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            String line;
+            while ((line = br.readLine()) != null){
+                if(count == 10){
+                    RapidAPIonThread(text.toString());
+                    text = new StringBuilder();
+                    count = 0;
+                }
+                text.append(line);
+                text.append("\n");
+                count++;
             }
-        });
-        Button example2 = findViewById(R.id.example2);
-        example2.setText(str2);
-        example2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                str = str2;
-                example.setText(str);
-            }
-        });
+            br.close();
+            RapidAPIonThread(text.toString());
 
-        RapidAPIonThread(str1);
-
+        } catch(IOException e){
+            e.printStackTrace();
+        }
     }
 
     private void RapidAPIonThread(String text){
@@ -108,35 +107,69 @@ public class LoadActivity extends AppCompatActivity {
                 RapidAPI(text);
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.d("http", "RapidAPI exception");
+                Log.d("Myhttp", "RapidAPI exception");
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         }).start();
     }
 
-    private void RapidAPI(String text) throws IOException {
+    private void RapidAPI(String text) throws IOException, JSONException {
         OkHttpClient client = new OkHttpClient();
 
-        MediaType mediaType = MediaType.parse("application/json");
-        String value = "{\r\n    \"sentence\": \"" + text + "\"\r\n}";
-        RequestBody body = RequestBody.create(mediaType, value);
-        Request request = new Request.Builder()
-                .url("https://emodex-emotions-analysis.p.rapidapi.com/rapidapi/emotions")
-                .post(body)
-                .addHeader("content-type", "application/json")
-                .addHeader("X-RapidAPI-Key", "501446e123mshee70949ebe79345p10c707jsn24ee4321df32")
-                .addHeader("X-RapidAPI-Host", "emodex-emotions-analysis.p.rapidapi.com")
+        RequestBody body = new FormBody.Builder()
+                .add("text", text)
                 .build();
 
+        Request request = new Request.Builder()
+                .url("https://twinword-emotion-analysis-v1.p.rapidapi.com/analyze/")
+                .post(body)
+                .addHeader("content-type", "application/x-www-form-urlencoded")
+                .addHeader("X-RapidAPI-Key", "501446e123mshee70949ebe79345p10c707jsn24ee4321df32")
+                .addHeader("X-RapidAPI-Host", "twinword-emotion-analysis-v1.p.rapidapi.com")
+                .build();
         Response response = client.newCall(request).execute();
-        if(response.isSuccessful()){
-            responseString = response.body().string();
-            Log.d("http", responseString);
-            response.body().close();
+        Log.d("Myhttp", response.body().string());
+        JSONObject jsonObject = new JSONObject(response.body().string());
+        if(jsonObject.get("emotions_detected") != null){
+            emotion_line_list.add((String[]) jsonObject.get("emotions_detected"));
         }
+        else {
+            Log.d("Myhttp", "response emotion_detected is null");
+        }
+
     }
 
+    private void writeChapterEmotionList() throws IOException {
+        String path = INTERNAL_STORAGE_FILE_PATH +FILE_NAME+"/";
+        File file = new File(path);
+        if(!file.exists()){
+            file.mkdirs();
+        }
 
+        File chapterEmotionListFile = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME);
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(path+CHAPTER_EMOTION_LIST_FILE_NAME));
+        bufferedWriter.write("1");
 
-
+    }
+    private Boolean ChapterEmotionListExist(){
+        String path = INTERNAL_STORAGE_FILE_PATH +FILE_NAME+"/";
+        File file = new File(path);
+        if(file.exists()) {
+            File file2 = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME);
+            if(file2.exists()){
+                Log.d("Myhttp", "file exist");
+                return true;
+            }
+            else {
+                Log.d("Myhttp", "file not exist");
+                return false;
+            }
+        }
+        else {
+            Log.d("Myhttp", "dic not exist");
+            return false;
+        }
+    }
 
 }

@@ -1,14 +1,26 @@
 package org.techtown.ebookbgm;
 
-import androidx.appcompat.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 
-import android.os.Bundle;
+import java.util.List;
 
-public class TextPagerAdapter extends AppCompatActivity {
+public class TextPagerAdapter extends FragmentPagerAdapter {
+    private final List<CharSequence> pageTexts;
+
+    public TextPagerAdapter(FragmentManager fm, List<CharSequence> pageTexts) {
+        super(fm);
+        this.pageTexts = pageTexts;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_text_pager_adapter);
+    public Fragment getItem(int i) {
+        return PageFragment.newInstance(pageTexts.get(i));
+    }
+
+    @Override
+    public int getCount() {
+        return pageTexts.size();
     }
 }
