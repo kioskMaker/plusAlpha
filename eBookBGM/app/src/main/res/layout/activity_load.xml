@@ -10,29 +10,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <Button
-            android:id="@+id/example1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="It's amazing! said Alice." />
-
-        <Button
-            android:id="@+id/example2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="At the point today where if someone says something remotely kind to me, a waterfall will burst out of my eyes" />
-
-        <TextView
-            android:id="@+id/example"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="TextView" />
-    </LinearLayout>
+        android:orientation="vertical"/>
 
     <Button
         android:id="@+id/button_analysis"
