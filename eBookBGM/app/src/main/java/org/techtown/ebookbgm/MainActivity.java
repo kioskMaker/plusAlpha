@@ -33,20 +33,11 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        startactivity.setOnClickListener(new View.OnClickListener() {
+        Button button_startactivity = findViewById(R.id.button_startactivity);
+        button_startactivity.setOnClickListener(new View.OnClickListener() {
             @Override
-
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), startactivity.class);
-                startActivity(intent);
-            }
-        });
-
-        Button buttonPageActivity = findViewById(R.id.button_pageActivity);
-        buttonPageActivity.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), PageMainActivity.class);
                 startActivity(intent);
             }
         });
