@@ -22,7 +22,7 @@ import java.util.List;
 
 public class ChapterList extends AppCompatActivity {
 
-    final static String FILE_NAME = "aliceinwonderland_chaper_divided";
+    final static String FILE_NAME = "aliceinwonderland_chapter_divided";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,9 +67,8 @@ public class ChapterList extends AppCompatActivity {
             }
 
         });
-
-
     }
+
     private String readText(int input) throws IOException {
         AssetManager assetManager = getAssets();
         InputStream is = assetManager.open(FILE_NAME + "/chapter"+input +".txt");

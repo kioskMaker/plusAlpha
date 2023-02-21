@@ -2,11 +2,13 @@ package org.techtown.ebookbgm;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 
 import java.util.ArrayList;
@@ -108,6 +110,7 @@ public class PageSplitter {
         if (textPaint.isFakeBoldText()) {
             spannable.setSpan(new StyleSpan(Typeface.BOLD), 0, spannable.length(), 0);
         }
+        spannable.setSpan(new ForegroundColorSpan(textPaint.getColor()), 0, spannable.length(), 0);
         return spannable;
     }
 }

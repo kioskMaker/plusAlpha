@@ -59,7 +59,6 @@ public class LoadActivity extends AppCompatActivity {
 
         textView_analysis = findViewById(R.id.text_analysis);
 
-
         Button button_analysis = findViewById(R.id.button_analysis);
         button_analysis.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -161,9 +160,6 @@ public class LoadActivity extends AppCompatActivity {
             Log.d("Myhttp", "readtext10line IOException");
             e.printStackTrace();
         }
-
-
-
     }
 
     private void RapidAPIonThread(String text){
