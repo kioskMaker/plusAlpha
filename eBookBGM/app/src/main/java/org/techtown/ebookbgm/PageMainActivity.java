@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.RelativeLayout;
 
+<<<<<<< Updated upstream
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +29,10 @@ public class PageMainActivity extends FragmentActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_page_main);
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
         pagesView = (ViewPager) findViewById(R.id.pages);
 
 

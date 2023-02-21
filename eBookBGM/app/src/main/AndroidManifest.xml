@@ -16,7 +16,20 @@
         android:theme="@style/Theme.EBookBGM"
         tools:targetApi="31">
         <activity
+<<<<<<< Updated upstream
             android:name=".startactivity"
+=======
+            android:name=".PageMainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TextPagerAdapter"
+            android:exported="false" />
+        <activity
+            android:name=".PageFragment"
+            android:exported="false" />
+        <activity
+            android:name=".PageSplitter"
+>>>>>>> Stashed changes
             android:exported="false" />
         <activity
             android:name=".ChapterList"
@@ -24,7 +37,7 @@
         <activity
             android:name=".radeffactory"
             android:exported="false"
-            android:label="@string/app_name"></activity>
+            android:label="@string/app_name" />
         <activity
             android:name=".LoadActivity"
             android:exported="false">

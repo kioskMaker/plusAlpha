@@ -4,7 +4,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
+<<<<<<< Updated upstream
 import android.os.Bundle;
+=======
+>>>>>>> Stashed changes
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
@@ -14,8 +17,15 @@ import android.widget.Toolbar;
 
 import java.util.ArrayList;
 import java.util.List;
+>>>>>>> Stashed changes
 
+import java.util.ArrayList;
+import java.util.List;
+
+<<<<<<< Updated upstream
 public class PageSplitter {
+=======
+>>>>>>> Stashed changes
     private final int pageWidth;
     private final int pageHeight;
     private final float lineSpacingMultiplier;
@@ -113,6 +123,10 @@ public class PageSplitter {
         }
         spannable.setSpan(new ForegroundColorSpan(textPaint.getColor()), 0, spannable.length(), 0);
         return spannable;
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     }
 
 

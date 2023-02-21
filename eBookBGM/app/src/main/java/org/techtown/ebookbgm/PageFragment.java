@@ -10,7 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+<<<<<<< Updated upstream
 public class PageFragment extends Fragment {
+=======
+public class PageFragment extends AppCompatActivity {
+>>>>>>> Stashed changes
     private final static String PAGE_TEXT = "PAGE_TEXT";
 
     public static PageFragment newInstance(CharSequence pageText) {
