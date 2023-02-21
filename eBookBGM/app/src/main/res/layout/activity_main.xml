@@ -24,23 +24,43 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/button_PapagoAPI"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="PapagoAPI"
-            android:textSize="12sp" />
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/button_LoadActivity"
+            <Button
+                android:id="@+id/button_PapagoAPI"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="PapagoAPI"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/button_LoadActivity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="LoadActivity"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/button3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Button"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="LoadActivity"
-            android:textSize="12sp" />
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
         <Button
             android:id="@+id/button_pageActivity"
@@ -49,6 +69,12 @@
             android:layout_weight="1"
             android:text="pageactivity"
             android:textSize="12sp" />
+        <Button
+            android:id="@+id/button_startactivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="startactivity" />
     </LinearLayout>
 
 </LinearLayout>
