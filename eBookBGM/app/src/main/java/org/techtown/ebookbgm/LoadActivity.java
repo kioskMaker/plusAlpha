@@ -3,27 +3,24 @@ package org.techtown.ebookbgm;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
-import okhttp3.MediaType;
 
 import org.checkerframework.checker.units.qual.A;
+import org.checkerframework.checker.units.qual.C;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.tensorflow.lite.Interpreter;
-import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -34,28 +31,34 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 public class LoadActivity extends AppCompatActivity {
 
-    final static String FILE_NAME = "aliceinwonderland_chapter_divided";
+    String PARENT_FILE_PATH = "books/";
+    String BOOK_NAME;
     final static String INTERNAL_STORAGE_FILE_PATH = "/data/data/org.techtown.ebookbgm/files/";
     final static String CHAPTER_EMOTION_LIST_FILE_NAME = "chapterEmotionList.txt";
     ArrayList<String[]> emotion_line_list = new ArrayList<String[]>();
     ArrayList<EmotionPointInfo> emotionPointInfos = new ArrayList<EmotionPointInfo>();
+    ArrayList<EmotionPointInfo> finalEmotionPointInfos = new ArrayList<EmotionPointInfo>();
     TextView textView_analysis;
     private ProgressDialog progressDialog = null;
+    int chapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_load);
+
+        Intent intent = getIntent();
+        BOOK_NAME = intent.getExtras().getString("bookname");
+        chapter = intent.getExtras().getInt("chapter");
 
         textView_analysis = findViewById(R.id.text_analysis);
 
@@ -63,19 +66,20 @@ public class LoadActivity extends AppCompatActivity {
         button_analysis.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String path = INTERNAL_STORAGE_FILE_PATH +FILE_NAME+"/";
+                String path = INTERNAL_STORAGE_FILE_PATH + BOOK_NAME +"/";
                 File chapterEmotionListFile = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME);
-                if(ChapterEmotionListExist()){
+                if(!ChapterEmotionListExist()){
                     Log.d("Myhttp", "ChapterEmotionListExist success");
                     try {
                         BufferedReader bufferedReader = new BufferedReader(new FileReader(chapterEmotionListFile));
                         String line;
                         while((line = bufferedReader.readLine()) != null){
                             String[] strings = line.split(",");
-                            EmotionPointInfo info = new EmotionPointInfo(strings[0], Integer.parseInt(strings[1]), Integer.parseInt(strings[2]));
-                            emotionPointInfos.add(info);
+                            if(Integer.parseInt(strings[0]) == chapter){
+                                EmotionPointInfo info = new EmotionPointInfo(chapter, strings[1], Integer.parseInt(strings[2]), Integer.parseInt(strings[3]));
+                                emotionPointInfos.add(info);
+                            }
                         }
-                        textView_analysis.setText(checkEmoInfos());
                         bufferedReader.close();
 
                     } catch (FileNotFoundException e) {
@@ -90,7 +94,8 @@ public class LoadActivity extends AppCompatActivity {
                     try {
                         Log.d("Myhttp", "ChapterEmotionListExist failed");
                         setProgressBar();
-                        readText10line(6);
+                        readText10line();
+                        writeChapterEmotionList();
                     } catch (IOException e) {
                         Log.d("Myhttp", "Button IOException");
                         e.printStackTrace();
@@ -100,72 +105,45 @@ public class LoadActivity extends AppCompatActivity {
         });
     }
 
-    private void readText10line(int input) throws IOException {
+    private void readText10line() throws IOException {
         AssetManager assetManager = getAssets();
-        InputStream is = assetManager.open(FILE_NAME + "/chapter_en/chapter"+input+"_en.txt");
 
-        StringBuilder text = new StringBuilder();
-        int count = 0;
-        int tempcount = 0;
-        try{
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            String line;
-            while ((line = br.readLine()) != null){
-                if(count == 10){
-                    tempcount++;
-                    final String temptext = text.toString();
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            RapidAPIonThread(temptext);
-                        }
-                    }, 1000 * tempcount);
-                    text = new StringBuilder();
-                    count = 0;
+        for(int i=1;i<=assetManager.list("books/" + BOOK_NAME + "/chapter_en").length;i++) {
+            InputStream is = assetManager.open(PARENT_FILE_PATH + BOOK_NAME + "/chapter_en/ch" + 1 + "_eng.txt");
+            StringBuilder text = new StringBuilder();
+            int count = 0;
+            int tempcount = 0;
+            ArrayList<String> temp = new ArrayList<>();
+            try {
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    if (count == 10) {
+                        tempcount++;
+                        temp.add(text.toString());
+                        text = new StringBuilder();
+                        count = 0;
 
-                }
-                text.append(line);
-                text.append("\n");
-                count++;
-            }
-            br.close();
-            tempcount++;
-            final String temptext = text.toString();
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    RapidAPIonThread(temptext);
-                }
-            }, 1000 * tempcount);
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    getEmotionPoint();
-                    organizeEmotionPointInfos();
-                    try {
-                        writeChapterEmotionList();
-                    } catch (IOException e) {
-                        Log.d("Myhttp", "writeChapterEmotionList IOException");
-                        e.printStackTrace();
                     }
-                    textView_analysis.setText(checkEmoInfos());
-                    progressDialog.dismiss();
+                    text.append(line);
+                    text.append("\n");
+                    count++;
                 }
-            }, 1000 * tempcount + 5000);
+                br.close();
+                tempcount++;
+                temp.add(text.toString());
 
-
-        } catch(IOException e){
-            Log.d("Myhttp", "readtext10line IOException");
-            e.printStackTrace();
+            } catch (IOException e) {
+                Log.d("Myhttp", "readtext10line IOException");
+                e.printStackTrace();
+            }
         }
     }
 
-    private void RapidAPIonThread(String text){
+    private void RapidAPIonThread(ArrayList<String> text){
         new Thread(()->{
             try {
-                RapidAPI(text);
+                RapidAPI(text , 0);
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.d("Myhttp", "RapidAPI IOException");
@@ -177,11 +155,11 @@ public class LoadActivity extends AppCompatActivity {
 
     }
 
-    private void RapidAPI(String text) throws IOException, JSONException {
+    private void RapidAPI(ArrayList<String> text, int point) throws IOException, JSONException {
         OkHttpClient client = new OkHttpClient();
 
         RequestBody body = new FormBody.Builder()
-                .add("text", text)
+                .add("text", text.get(point))
                 .build();
 
         Request request = new Request.Builder()
@@ -191,23 +169,51 @@ public class LoadActivity extends AppCompatActivity {
                 .addHeader("X-RapidAPI-Key", "501446e123mshee70949ebe79345p10c707jsn24ee4321df32")
                 .addHeader("X-RapidAPI-Host", "twinword-emotion-analysis-v1.p.rapidapi.com")
                 .build();
-        Response response = client.newCall(request).execute();
-        String responseToStr =  response.body().string();
-        Log.d("Myhttp", responseToStr);
-        JSONObject jsonObject = new JSONObject(responseToStr);
-        if(jsonObject.get("emotions_detected") != null){
-            emotion_line_list.add(toStringArray((JSONArray)jsonObject.get("emotions_detected")));
-            String str = "";
-            for(int i=0;i<emotion_line_list.get(emotion_line_list.size()-1).length;i++){
-                str = str + emotion_line_list.get(emotion_line_list.size()-1)[i] + ", ";
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                call.cancel();
             }
-            Log.d("Myhttp", "" + (emotion_line_list.size()-1) + " : " + str);
 
-        }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseToStr = response.body().string();
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = new JSONObject(responseToStr);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    if(jsonObject.get("emotions_detected") != null){
+                        emotion_line_list.add(toStringArray((JSONArray)jsonObject.get("emotions_detected")));
+                        String str = "";
+                        for(int i=0;i<emotion_line_list.get(emotion_line_list.size()-1).length;i++){
+                            str = str + emotion_line_list.get(emotion_line_list.size()-1)[i] + ", ";
+                        }
+                        Log.d("Myhttp", "" + (emotion_line_list.size()-1) + " : " + str);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                if(text.size() > point+1){
+                    try {
+                        RapidAPI(text, point+1);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else {
+                    writeChapterEmotionList();
+                }
+            }
+        });
+
     }
 
     private void writeChapterEmotionList() throws IOException {
-        String path = INTERNAL_STORAGE_FILE_PATH +FILE_NAME+"/";
+        String path = INTERNAL_STORAGE_FILE_PATH + BOOK_NAME +"/";
         File file = new File(path);
         if(!file.exists()){
             file.mkdirs();
@@ -217,14 +223,15 @@ public class LoadActivity extends AppCompatActivity {
         String str = "";
         for(int i=0;i<emotionPointInfos.size();i++){
             EmotionPointInfo info = emotionPointInfos.get(i);
-            str = str + info.getEmotion_type() + "," + info.getStart() + "," + info.getEnd() + "\n";
+            str = str + info.getChapter() + "," + info.getEmotion_type() + "," + info.getStart() + "," + info.getEnd() + "\n";
         }
         bufferedWriter.write(str);
+        Log.d("Myhttp", str);
         bufferedWriter.close();
 
     }
     private Boolean ChapterEmotionListExist(){
-        String path = INTERNAL_STORAGE_FILE_PATH +FILE_NAME+"/";
+        String path = INTERNAL_STORAGE_FILE_PATH + BOOK_NAME +"/";
         File file = new File(path);
         if(file.exists()) {
             File file2 = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME);
@@ -255,7 +262,7 @@ public class LoadActivity extends AppCompatActivity {
         Boolean hit = false;
         if(x == emotion_line_list.size()){
             if(count >= 2){
-                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(emotion_str, x-count, x-1);
+                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(chapter, emotion_str, x-count, x-1);
                 emotionPointInfos.add(emotionPointInfo);
             }
             return;
@@ -263,7 +270,7 @@ public class LoadActivity extends AppCompatActivity {
 
         if(emotion_line_list.get(x).length == 0){
             if(count >= 2){
-                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(emotion_str, x-count, x-1);
+                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(chapter, emotion_str, x-count, x-1);
                 emotionPointInfos.add(emotionPointInfo);
             }
             return ;
@@ -278,7 +285,7 @@ public class LoadActivity extends AppCompatActivity {
         }
         if(!hit){
             if(count >= 2){
-                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(emotion_str, x-count, x-1);
+                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(chapter, emotion_str, x-count, x-1);
                 emotionPointInfos.add(emotionPointInfo);
             }
         }

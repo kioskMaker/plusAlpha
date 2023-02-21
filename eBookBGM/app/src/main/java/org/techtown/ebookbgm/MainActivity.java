@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         button_startactivity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), startactivity.class);
+                Intent intent = new Intent(getApplicationContext(), InitActivity.class);
                 startActivity(intent);
             }
         });
@@ -47,6 +47,24 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), PageMainActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        Button buttonChapterList = findViewById(R.id.button_chapterlist);
+        buttonChapterList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), ChapterList.class);
+                startActivity(intent);
+            }
+        });
+
+        Button buttonBookListActivity = findViewById(R.id.button_booklistactivity);
+        buttonBookListActivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), BookListActivity.class);
                 startActivity(intent);
             }
         });
