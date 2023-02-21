@@ -69,6 +69,7 @@
             android:layout_weight="1"
             android:text="pageactivity"
             android:textSize="12sp" />
+<<<<<<< Updated upstream
         <Button
             android:id="@+id/button_startactivity"
             android:layout_width="wrap_content"
@@ -76,5 +77,15 @@
             android:layout_weight="1"
             android:text="startactivity" />
     </LinearLayout>
+=======
+
+        <androidx.appcompat.widget.Toolbar
+            android:id = '@+id/toolbar_main'
+            android:layout_width='0dp'
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintTop_toTop0f="parent"
+            app:layout_constraintStart_toStart0f= "parent"
+            app:layout_constraintEnd_toEnd0f= "parent" />
+>>>>>>> Stashed changes
 
 </LinearLayout>
