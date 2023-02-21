@@ -1,24 +1,26 @@
 package org.techtown.ebookbgm;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 
 import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.TextPaint;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.RelativeLayout;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class PageMainActivity extends FragmentActivity {
+public class PageMainActivity extends FragmentActivity{
     private ViewPager pagesView;
     final static String FILE_NAME = "aliceinwonderland_chapter_divided";
 
