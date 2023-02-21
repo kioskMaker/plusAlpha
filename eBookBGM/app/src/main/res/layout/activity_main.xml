@@ -69,7 +69,6 @@
             android:layout_weight="1"
             android:text="pageactivity"
             android:textSize="12sp" />
-
         <Button
             android:id="@+id/button_startactivity"
             android:layout_width="wrap_content"
@@ -86,5 +85,3 @@
             app:layout_constraintTop_toTop0f="parent"
             app:layout_constraintStart_toStart0f= "parent"
             app:layout_constraintEnd_toEnd0f= "parent" />
-
-</LinearLayout>
