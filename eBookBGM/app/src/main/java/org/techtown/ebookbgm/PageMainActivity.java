@@ -15,7 +15,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.RelativeLayout;
 
-<<<<<<< Updated upstream
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,10 +29,7 @@ public class PageMainActivity extends FragmentActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_page_main);
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
         pagesView = (ViewPager) findViewById(R.id.pages);
 
 
@@ -57,6 +54,19 @@ public class PageMainActivity extends FragmentActivity{
 
                 pagesView.setAdapter(new TextPagerAdapter(getSupportFragmentManager(), pageSplitter.getPages()));
                 pagesView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                TextPagerAdapter textPagerAdapter = (TextPagerAdapter) pagesView.getAdapter();
+
+                for(int i=0;i<textPagerAdapter.getCount();i++){
+                    String str = textPagerAdapter.getPageTexts(i).toString();
+                    if(str.substring(str.length()-2).equals("\n")){
+                        String[] strings = str.split("\n");
+                        int sentence_num = strings.length;
+                    }
+                    else{
+                        String[] strings = str.split("\n");
+                        int sentence_num = strings.length-1;
+                    }
+                }
             }
         });
 
