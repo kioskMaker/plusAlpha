@@ -3,12 +3,12 @@ package org.techtown.ebookbgm;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.ViewPager;
-import android.support.v7.app.AppCompatActivity;
+
 
 import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+
 import android.text.TextPaint;
 import android.util.Log;
 import android.view.View;

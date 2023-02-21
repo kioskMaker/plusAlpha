@@ -1,10 +1,12 @@
 package org.techtown.ebookbgm;
 
-import android.support.v7.app.AppCompatActivity;
+
 
 import android.os.Bundle;
 import android.view.View;
 import android.widget.RelativeLayout;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class Getsupport extends AppCompatActivity {
 
