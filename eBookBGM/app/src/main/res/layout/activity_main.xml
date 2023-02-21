@@ -101,4 +101,12 @@
         </LinearLayout>
 
     </LinearLayout>
-</LinearLayout>
+
+
+        <androidx.appcompat.widget.Toolbar
+            android:id = '@+id/toolbar_main'
+            android:layout_width='0dp'
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintTop_toTop0f="parent"
+            app:layout_constraintStart_toStart0f= "parent"
+            app:layout_constraintEnd_toEnd0f= "parent" />

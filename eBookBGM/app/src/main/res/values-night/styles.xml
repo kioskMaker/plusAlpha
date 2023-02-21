@@ -6,6 +6,9 @@
     </style>
     <style name="FullScreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowFullscreen">true</item>
+    <!-- No Title Bar-->
+    <item name = "windowActionBar">false</item>
+    <item name = "windowNoTitle">true</item>
     </style>
 
 </resources>
