@@ -44,13 +44,13 @@ public class LoadActivity extends AppCompatActivity {
     String PARENT_FILE_PATH = "books/";
     String BOOK_NAME;
     final static String INTERNAL_STORAGE_FILE_PATH = "/data/data/org.techtown.ebookbgm/files/";
-    final static String CHAPTER_EMOTION_LIST_FILE_NAME = "chapterEmotionList.txt";
+    final static String CHAPTER_EMOTION_LIST_FILE_NAME = "chapterEmotionList";
     ArrayList<String[]> emotion_line_list = new ArrayList<String[]>();
     ArrayList<EmotionPointInfo> emotionPointInfos = new ArrayList<EmotionPointInfo>();
-    ArrayList<EmotionPointInfo> finalEmotionPointInfos = new ArrayList<EmotionPointInfo>();
     TextView textView_analysis;
     private ProgressDialog progressDialog = null;
     int chapter;
+    int chapter_num;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +60,14 @@ public class LoadActivity extends AppCompatActivity {
         BOOK_NAME = intent.getExtras().getString("bookname");
         chapter = intent.getExtras().getInt("chapter");
 
+        AssetManager assetManager = getAssets();
+        try {
+            chapter_num = assetManager.list("books/" + BOOK_NAME + "/chapter_en").length;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         textView_analysis = findViewById(R.id.text_analysis);
 
         Button button_analysis = findViewById(R.id.button_analysis);
@@ -67,8 +75,8 @@ public class LoadActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String path = INTERNAL_STORAGE_FILE_PATH + BOOK_NAME +"/";
-                File chapterEmotionListFile = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME);
-                if(!ChapterEmotionListExist()){
+                File chapterEmotionListFile = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME + chapter +".txt");
+                if(ChapterEmotionListExist()){
                     Log.d("Myhttp", "ChapterEmotionListExist success");
                     try {
                         BufferedReader bufferedReader = new BufferedReader(new FileReader(chapterEmotionListFile));
@@ -81,6 +89,7 @@ public class LoadActivity extends AppCompatActivity {
                             }
                         }
                         bufferedReader.close();
+                        textView_analysis.setText(checkEmoInfos());
 
                     } catch (FileNotFoundException e) {
                         Log.d("Myhttp", "Button file not found");
@@ -94,8 +103,7 @@ public class LoadActivity extends AppCompatActivity {
                     try {
                         Log.d("Myhttp", "ChapterEmotionListExist failed");
                         setProgressBar();
-                        readText10line();
-                        writeChapterEmotionList();
+                        readText10line(chapter);
                     } catch (IOException e) {
                         Log.d("Myhttp", "Button IOException");
                         e.printStackTrace();
@@ -105,45 +113,41 @@ public class LoadActivity extends AppCompatActivity {
         });
     }
 
-    private void readText10line() throws IOException {
+    private void readText10line(int chapter) throws IOException {
         AssetManager assetManager = getAssets();
+        InputStream is = assetManager.open(PARENT_FILE_PATH + BOOK_NAME + "/chapter_en/ch" + chapter + "_eng.txt");
+        StringBuilder text = new StringBuilder();
+        int count = 0;
+        ArrayList<String> temp = new ArrayList<>();
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (count == 10) {
+                    temp.add(text.toString());
+                    text = new StringBuilder();
+                    count = 0;
 
-        for(int i=1;i<=assetManager.list("books/" + BOOK_NAME + "/chapter_en").length;i++) {
-            InputStream is = assetManager.open(PARENT_FILE_PATH + BOOK_NAME + "/chapter_en/ch" + 1 + "_eng.txt");
-            StringBuilder text = new StringBuilder();
-            int count = 0;
-            int tempcount = 0;
-            ArrayList<String> temp = new ArrayList<>();
-            try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                String line;
-                while ((line = br.readLine()) != null) {
-                    if (count == 10) {
-                        tempcount++;
-                        temp.add(text.toString());
-                        text = new StringBuilder();
-                        count = 0;
-
-                    }
-                    text.append(line);
-                    text.append("\n");
-                    count++;
                 }
-                br.close();
-                tempcount++;
-                temp.add(text.toString());
-
-            } catch (IOException e) {
-                Log.d("Myhttp", "readtext10line IOException");
-                e.printStackTrace();
+                text.append(line);
+                text.append("\n");
+                count++;
             }
+            br.close();
+            temp.add(text.toString());
+
+        } catch (IOException e) {
+            Log.d("Myhttp", "readtext10line IOException");
+            e.printStackTrace();
         }
+        Log.d("Myhttp", "chapter : " + chapter + " temp size : " + temp.size());
+        RapidAPIonThread(chapter, temp, 0);
     }
 
-    private void RapidAPIonThread(ArrayList<String> text){
+    private void RapidAPIonThread(int chapter, ArrayList<String> text, int point){
         new Thread(()->{
             try {
-                RapidAPI(text , 0);
+                RapidAPI(chapter, text, point);
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.d("Myhttp", "RapidAPI IOException");
@@ -155,9 +159,8 @@ public class LoadActivity extends AppCompatActivity {
 
     }
 
-    private void RapidAPI(ArrayList<String> text, int point) throws IOException, JSONException {
+    private void RapidAPI(int chapter, ArrayList<String> text, int point) throws IOException, JSONException {
         OkHttpClient client = new OkHttpClient();
-
         RequestBody body = new FormBody.Builder()
                 .add("text", text.get(point))
                 .build();
@@ -178,10 +181,12 @@ public class LoadActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseToStr = response.body().string();
+                Log.d("Myhttp", responseToStr);
                 JSONObject jsonObject = null;
                 try {
                     jsonObject = new JSONObject(responseToStr);
                 } catch (JSONException e) {
+                    Log.d("Myhttp", "JSONException 3");
                     e.printStackTrace();
                 }
                 try {
@@ -190,23 +195,25 @@ public class LoadActivity extends AppCompatActivity {
                         String str = "";
                         for(int i=0;i<emotion_line_list.get(emotion_line_list.size()-1).length;i++){
                             str = str + emotion_line_list.get(emotion_line_list.size()-1)[i] + ", ";
+
                         }
                         Log.d("Myhttp", "" + (emotion_line_list.size()-1) + " : " + str);
                     }
                 } catch (JSONException e) {
+                    Log.d("Myhttp", "JSONException 2");
                     e.printStackTrace();
                 }
-
+                //TO-DO 수정
                 if(text.size() > point+1){
-                    try {
-                        RapidAPI(text, point+1);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    RapidAPIonThread(chapter, text, point+1);
                 }
                 else {
+                    getEmotionPoint();
+                    organizeEmotionPointInfos();
                     writeChapterEmotionList();
+                    progressDialog.dismiss();
                 }
+
             }
         });
 
@@ -218,8 +225,8 @@ public class LoadActivity extends AppCompatActivity {
         if(!file.exists()){
             file.mkdirs();
         }
-        File chapterEmotionListFile = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME);
-        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(path+CHAPTER_EMOTION_LIST_FILE_NAME));
+        File chapterEmotionListFile = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME+chapter+".txt");
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(path+CHAPTER_EMOTION_LIST_FILE_NAME+chapter+".txt"));
         String str = "";
         for(int i=0;i<emotionPointInfos.size();i++){
             EmotionPointInfo info = emotionPointInfos.get(i);
@@ -229,12 +236,13 @@ public class LoadActivity extends AppCompatActivity {
         Log.d("Myhttp", str);
         bufferedWriter.close();
 
+
     }
     private Boolean ChapterEmotionListExist(){
         String path = INTERNAL_STORAGE_FILE_PATH + BOOK_NAME +"/";
         File file = new File(path);
         if(file.exists()) {
-            File file2 = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME);
+            File file2 = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME + chapter + ".txt");
             if(file2.exists()){
                 Log.d("Myhttp", "file exist");
                 return true;
@@ -245,7 +253,7 @@ public class LoadActivity extends AppCompatActivity {
             }
         }
         else {
-            Log.d("Myhttp", "dic not exist");
+
             return false;
         }
     }
