@@ -13,6 +13,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+<<<<<<< Updated upstream
 
 
         // 원하는 Activity 실행
@@ -69,5 +70,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+=======
+>>>>>>> Stashed changes
     }
 }
