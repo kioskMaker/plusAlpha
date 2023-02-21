@@ -73,7 +73,7 @@ public class PageMainActivity extends FragmentActivity{
     }
     private String readText(int input) throws IOException {
         AssetManager assetManager = getAssets();
-        InputStream is = assetManager.open(FILE_NAME + "/alice_ch6.txt");
+        InputStream is = assetManager.open(FILE_NAME + "/ch" + input + ".txt");
 
         StringBuilder text = new StringBuilder();
         try{
