@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 public class PageMainActivity extends FragmentActivity{
     private ViewPager pagesView;
     final static String FILE_NAME = "books/aliceinwonderland";
+    int sentence_num;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,13 +61,15 @@ public class PageMainActivity extends FragmentActivity{
                     String str = textPagerAdapter.getPageTexts(i).toString();
                     if(str.substring(str.length()-2).equals("\n")){
                         String[] strings = str.split("\n");
-                        int sentence_num = strings.length;
+                        sentence_num = strings.length;
                     }
                     else{
                         String[] strings = str.split("\n");
-                        int sentence_num = strings.length-1;
+                        sentence_num = strings.length-1;
                     }
+                    Log.d("Mypager", ""+sentence_num);
                 }
+
             }
         });
 
