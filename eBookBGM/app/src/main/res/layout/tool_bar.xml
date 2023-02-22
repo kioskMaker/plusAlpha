@@ -9,9 +9,32 @@
     app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
-    <android.widget.ActionMenuView
+    <RelativeLayout
         android:id="@+id/amvMenu"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"/>
+        android:layout_height="?attr/actionBarSize"
+        android:background="#ECECEC">
+
+        <ImageButton
+            android:id="@+id/imageButton2"
+            android:layout_width="58dp"
+            android:layout_height="match_parent"
+            android:backgroundTint="@color/cardview_shadow_end_color"
+            app:srcCompat="@drawable/chevron_left" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="74dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="104dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginEnd="159dp"
+            android:layout_marginBottom="18dp"
+            android:layout_toEndOf="@+id/imageButton2"
+            android:text="CHAPTER" />
+    </RelativeLayout>
 
 </android.widget.Toolbar>
