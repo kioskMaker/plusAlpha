@@ -6,14 +6,9 @@
         android:icon="@drawable/back5"
         android:title="이전"
         />
-
-<<<<<<< Updated upstream:eBookBGM/app/src/main/res/menu/bottom_navi_menu.xml
     <item
         android:id="@+id/front"
         android:enabled="true"
         android:icon="@drawable/front5"
         android:title="다음"/>
-=======
-
->>>>>>> Stashed changes:eBookBGM/app/src/main/res/menu/toolbar.xml
 </menu>

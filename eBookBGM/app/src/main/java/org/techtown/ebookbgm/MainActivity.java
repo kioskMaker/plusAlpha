@@ -47,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), PageMainActivity.class);
+                intent.putExtra("bookname", "aliceinwonderland");
+                intent.putExtra("chapter", 1);
                 startActivity(intent);
             }
         });
