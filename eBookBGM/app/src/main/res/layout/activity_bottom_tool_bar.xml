@@ -84,9 +84,12 @@
         android:id="@+id/bottom_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
+        android:layout_marginBottom="-2dp"
         android:background="#E2E7EC"
         app:itemIconTint=
+
         app:itemTextColor="#0C0900"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/toolbar" />
