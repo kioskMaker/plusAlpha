@@ -23,7 +23,7 @@
             app:srcCompat="@drawable/chevron_left" />
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/chapter_number"
             android:layout_width="74dp"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"

@@ -16,37 +16,54 @@
         android:layout_above="@+id/bottom_menu"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="1dp"
-        android:layout_marginTop="1dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="0sp"
+        android:layout_marginTop="0sp"
+        android:layout_marginEnd="0sp"
         android:layout_marginBottom="613dp"
         android:background="#E2E7EC">
 
         <ImageView
+            android:id="@+id/goBack"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_centerVertical="true"
-            android:layout_marginStart="29dp"
-            android:layout_marginEnd="350dp"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/back5"></ImageView>
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="359dp"
+            android:layout_marginBottom="15dp"
+            android:background="@drawable/back5"/>
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/chapter_number"
             android:layout_width="74dp"
             android:layout_height="30dp"
+            android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginStart="122dp"
+            android:layout_marginStart="170dp"
             android:layout_marginTop="19dp"
             android:layout_marginEnd="166dp"
             android:layout_marginBottom="12dp"
             android:backgroundTint="#DAD2D2"
             android:text="CHAPTER"
             app:autoSizeTextType="uniform" />
+
+        <ImageView
+            android:id="@+id/setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="299dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="21dp"
+            android:layout_marginBottom="16dp"
+            app:srcCompat="@drawable/menu_icon" />
 
     </RelativeLayout>
 
@@ -73,6 +90,5 @@
         app:itemTextColor="#0C0900"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/toolbar" />
-
 
 </RelativeLayout>
