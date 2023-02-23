@@ -32,14 +32,16 @@
                 android:autoSizeTextType="uniform"
                 android:backgroundTint="#DAD2D2"
                 android:gravity="center"
-                android:text="CHAPTER" />
+                android:text="CHAPTER"
+                android:textSize="10sp" />
 
             <ImageView
                 android:id="@+id/setting"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
+                android:layout_marginStart="320dp"
+                android:layout_toEndOf="@+id/goBack"
                 android:background="@drawable/menu_icon" />
 
         </RelativeLayout>
