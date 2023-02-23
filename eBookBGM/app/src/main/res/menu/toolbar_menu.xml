@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/goBack"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="359dp"
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/back5"
+        android:title="돌아가기" />
+
+    <item
+        android:id="@+id/chapter_number"
+        android:layout_width="74dp"
+        android:layout_height="30dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="170dp"
+        android:layout_marginTop="19dp"
+        android:layout_marginEnd="166dp"
+        android:layout_marginBottom="12dp"
+        android:backgroundTint="#DAD2D2"
+        android:text="CHAPTER"
+        app:autoSizeTextType="uniform"
+        android:title="chapter" />
+    <item
+        android:id="@+id/setting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="299dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="21dp"
+        android:layout_marginBottom="16dp"
+        app:srcCompat="@drawable/menu_icon"
+        android:title="setting" />
+
+
+</menu>

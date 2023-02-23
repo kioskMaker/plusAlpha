@@ -1,5 +1,7 @@
 package org.techtown.ebookbgm;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.ViewPager;
@@ -16,13 +18,17 @@ import android.view.ViewTreeObserver;
 import android.widget.RelativeLayout;
 
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import org.checkerframework.checker.units.qual.C;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class PageMainActivity extends FragmentActivity{
-    private ViewPager pagesView;
+public class PageMainActivity extends AppCompatActivity implements View.OnClickListener{
+    private ClickableViewPager pagesView;
     final static String FILE_NAME = "books/aliceinwonderland";
     int sentence_num;
 
@@ -31,14 +37,38 @@ public class PageMainActivity extends FragmentActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_page_main);
 
-        pagesView = (ViewPager) findViewById(R.id.pages);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        pagesView = (ClickableViewPager) findViewById(R.id.pages);
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().hide();
+        getSupportActionBar().setTitle(null);
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_menu);
+        bottomNavigationView.setVisibility(View.GONE);
+
+        pagesView.setOnViewPagerClickListener(new ClickableViewPager.OnClickListener() {
+            @Override
+            public void onViewPagerClick(ViewPager viewPager) {
+                Log.d("Mypager", "click");
+                if(getSupportActionBar().isShowing()){
+                    bottomNavigationView.setVisibility(View.GONE);
+                    getSupportActionBar().hide();
+                } else{
+                    getSupportActionBar().show();
+                    bottomNavigationView.setVisibility(View.VISIBLE);
+                }
+
+
+            }
+        });
 
 
         String str = null;
         try {
             str = readText(1);
         } catch (IOException e) {
-            Log.d("Mypagesplitter", "onCreate IOException");
+            Log.d("Mypager", "onCreate IOException");
             e.printStackTrace();
         }
         String finalStr = str;
@@ -59,13 +89,15 @@ public class PageMainActivity extends FragmentActivity{
 
                 for(int i=0;i<textPagerAdapter.getCount();i++){
                     String str = textPagerAdapter.getPageTexts(i).toString();
-                    if(str.substring(str.length()-2).equals("\n")){
-                        String[] strings = str.split("\n");
-                        sentence_num = strings.length;
-                    }
-                    else{
-                        String[] strings = str.split("\n");
-                        sentence_num = strings.length-1;
+                    if(str.length() >= 2){
+                        if(str.substring(str.length()-2).equals("\n")){
+                            String[] strings = str.split("\n");
+                            sentence_num = strings.length;
+                        }
+                        else{
+                            String[] strings = str.split("\n");
+                            sentence_num = strings.length-1;
+                        }
                     }
                     Log.d("Mypager", ""+sentence_num);
                 }
@@ -94,5 +126,12 @@ public class PageMainActivity extends FragmentActivity{
     }
 
 
+    public void onClickBack(View v) {
+        Log.d("Mypager", "clicking");
+    }
 
+    @Override
+    public void onClick(View v) {
+
+    }
 }

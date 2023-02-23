@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.ActionMenuView
+        android:id="@+id/menu"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize">
+
+        <RelativeLayout
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/bottom_menu"
+            android:background="#E2E7EC">
+
+            <ImageView
+                android:id="@+id/goBack"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentBottom="false"
+                android:layout_centerVertical="true"
+                android:background="@drawable/back5" />
+
+            <TextView
+                android:id="@+id/chapter_number"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:autoSizeTextType="uniform"
+                android:backgroundTint="#DAD2D2"
+                android:gravity="center"
+                android:text="CHAPTER" />
+
+            <ImageView
+                android:id="@+id/setting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/menu_icon" />
+
+        </RelativeLayout>
+
+    </androidx.appcompat.widget.ActionMenuView>
+
+
+
+</androidx.appcompat.widget.Toolbar>

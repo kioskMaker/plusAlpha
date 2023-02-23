@@ -13,7 +13,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-<<<<<<< Updated upstream
 
 
         // 원하는 Activity 실행
@@ -70,14 +69,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button buttontoolbar = findViewById(R.id.button_toolbar);
-        buttontoolbar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), Getsupport.class);
-                startActivity(intent);
-            }
-        });
 
     }
 }
