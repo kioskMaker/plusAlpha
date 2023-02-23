@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:contentInsetStart="0dp"
+    android:elevation="0dp"
+    android:background="#E2E7EC">
 
     <androidx.appcompat.widget.ActionMenuView
         android:id="@+id/menu"
@@ -12,15 +16,17 @@
             android:id="@+id/header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/bottom_menu"
             android:background="#E2E7EC">
+
 
             <ImageView
                 android:id="@+id/goBack"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="30sp"
+                android:layout_height="30sp"
+                android:layout_alignParentStart="true"
                 android:layout_alignParentBottom="false"
                 android:layout_centerVertical="true"
+                android:layout_marginStart="12dp"
                 android:background="@drawable/back5" />
 
             <TextView
@@ -29,18 +35,17 @@
                 android:layout_height="match_parent"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
-                android:autoSizeTextType="uniform"
-                android:backgroundTint="#DAD2D2"
+                android:backgroundTint="#DADADA"
                 android:gravity="center"
-                android:text="CHAPTER"
-                android:textSize="10sp" />
+                android:text="제1장"
+                android:textSize="20sp" />
 
             <ImageView
                 android:id="@+id/setting"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="320dp"
+                android:layout_marginStart="320sp"
                 android:layout_toEndOf="@+id/goBack"
                 android:background="@drawable/menu_icon" />
 

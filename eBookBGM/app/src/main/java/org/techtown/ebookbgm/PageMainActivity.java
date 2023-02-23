@@ -1,26 +1,28 @@
 package org.techtown.ebookbgm;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.ViewPager;
 
 
+import android.app.Activity;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.os.Bundle;
 
 import android.text.TextPaint;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import org.checkerframework.checker.units.qual.C;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,20 +31,32 @@ import java.io.InputStreamReader;
 
 public class PageMainActivity extends AppCompatActivity implements View.OnClickListener{
     private ClickableViewPager pagesView;
-    final static String FILE_NAME = "books/aliceinwonderland";
+    String FILE_NAME = "books/";
+    String BOOK_NAME = null;
     int sentence_num;
+    int CHAPTER;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_page_main);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
+
         pagesView = (ClickableViewPager) findViewById(R.id.pages);
+
+        Intent intent = getIntent();
+        BOOK_NAME = intent.getExtras().getString("bookname");
+        CHAPTER = intent.getExtras().getInt("chapter");
+        TextView toolbar_title = findViewById(R.id.chapter_number);
+        toolbar_title.setText("제" + CHAPTER + "장");
+
 
         setSupportActionBar(toolbar);
         getSupportActionBar().hide();
         getSupportActionBar().setTitle(null);
+
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_menu);
         bottomNavigationView.setVisibility(View.GONE);
@@ -66,7 +80,7 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
 
         String str = null;
         try {
-            str = readText(1);
+            str = readText(CHAPTER);
         } catch (IOException e) {
             Log.d("Mypager", "onCreate IOException");
             e.printStackTrace();
@@ -104,11 +118,55 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
 
             }
         });
+        BottomNavigationView bottom_menu = findViewById(R.id.bottom_menu);
+
+// 하단바를 눌렀을 때 프래그먼트가 변경되게 함
+
+        bottom_menu.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                Intent intent = new Intent(getApplicationContext(), PageMainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                switch (item.getItemId()) {
+                    case R.id.back:
+                        if(CHAPTER == 1) {
+                            Toast.makeText(getApplicationContext(), "First Chapter", Toast.LENGTH_LONG).show();
+                            break;
+                        }
+                        intent.putExtra("bookname", BOOK_NAME);
+                        intent.putExtra("chapter", CHAPTER-1);
+                        startActivity(intent);
+                        finish();
+                        break;
+                    case R.id.front:
+                        AssetManager as = getAssets();
+                        int MAX_CHAPTER;
+                        try {
+                            MAX_CHAPTER = as.list(FILE_NAME + BOOK_NAME + "/chapter_en").length;
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        if(CHAPTER == MAX_CHAPTER) {
+                            Toast.makeText(getApplicationContext(), "Last Chapter", Toast.LENGTH_LONG).show();
+                            break;
+                        }
+                        intent.putExtra("bookname", BOOK_NAME);
+                        intent.putExtra("chapter", CHAPTER+1);
+                        startActivity(intent);
+                        finish();
+                        break;
+                }
+                return true;
+            }
+        });
+
+
 
     }
     private String readText(int input) throws IOException {
         AssetManager assetManager = getAssets();
-        InputStream is = assetManager.open(FILE_NAME + "/ch" + input + ".txt");
+        InputStream is = assetManager.open(FILE_NAME + BOOK_NAME + "/ch" + input + ".txt");
 
         StringBuilder text = new StringBuilder();
         try{
