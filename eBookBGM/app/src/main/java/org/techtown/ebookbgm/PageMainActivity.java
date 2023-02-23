@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Color;
@@ -13,6 +14,7 @@ import android.os.Bundle;
 
 import android.text.TextPaint;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -36,12 +38,14 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_page_main);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
 
         pagesView = (ClickableViewPager) findViewById(R.id.pages);
+
         Intent intent = getIntent();
         BOOK_NAME = intent.getExtras().getString("bookname");
         CHAPTER = intent.getExtras().getInt("chapter");
@@ -52,6 +56,7 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
         setSupportActionBar(toolbar);
         getSupportActionBar().hide();
         getSupportActionBar().setTitle(null);
+
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_menu);
         bottomNavigationView.setVisibility(View.GONE);
