@@ -14,53 +14,28 @@
         android:fontFamily="sans-serif-black"
         android:text="LIV:Ebook"
         android:textColor="#FFFFFF"
-        android:textSize="55sp"
+        android:textSize="60dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.202" />
-
-    <Button
-        android:id="@+id/getStarted"
-        android:layout_width="163dp"
-        android:layout_height="76dp"
-        android:backgroundTint="#00FFFFFF"
-        android:onClick="goBooklist"
-        android:text="Get Started"
-        android:textColor="#FFFDFD"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.732" />
+        app:layout_constraintVertical_bias="0.342" />
 
     <TextView
         android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="책을 읽으며 BGM을 경험하기까지"
+        android:layout_width="350sp"
+        android:layout_height="100sp"
+        android:fontFamily="@font/fontstyle"
+        android:gravity="center_horizontal"
+        android:text="eBook을 읽으면서\n생생한 음향 효과를 경험하기까지"
         android:textColor="#FFFFFF"
-        android:textSize="22sp"
+        android:textSize="25sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.462" />
-
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="236dp"
-        android:layout_height="47dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.457"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.916"
-        app:srcCompat="@drawable/plusalpha" />
+        app:layout_constraintVertical_bias="0.678" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
