@@ -1,8 +1,12 @@
 package org.techtown.ebookbgm;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Handler;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,94 +14,109 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MusicHandler {
-    private MediaPlayer mediaPlayer;
-    private MediaPlayer mediaPlayer_pre;
-    private Context context;
-    private int iVolume;
-    final int FADE_DURATION = 3000; //The duration of the fade
-    //The amount of time between volume changes. The smaller this is, the smoother the fade
-    final int FADE_INTERVAL = 250;
-    final int MAX_VOLUME = 1; //The volume will increase from 0 to 1
-    int numberOfSteps = FADE_DURATION/FADE_INTERVAL; //Calculate the number of fade steps
-    //Calculate by how much the volume changes each step
-    final float deltaVolume = MAX_VOLUME / (float)numberOfSteps;
+    static MediaPlayer currentPlayer;
+    static MediaPlayer auxPlayer;
+    static Context context;
+    static boolean isStop = true;
 
-    float volume = 0;
-    public MusicHandler(Context context) {
+    public MusicHandler(Context context, MediaPlayer currentPlayer, MediaPlayer auxPlayer) {
+        this.currentPlayer = currentPlayer;
+        this.auxPlayer = auxPlayer;
         this.context = context;
+
+
     }
 
-    public void play(Uri audiofileUri) throws IOException {
-        if(mediaPlayer.isPlaying()){
-            startFadeOut(audiofileUri);
+
+
+    public static void crossFade(String activeEmotion, int NUM) throws IOException {
+        Log.d("Mypager", activeEmotion);
+        if(activeEmotion != "null"){
+            auxPlayer = new MediaPlayer();
+            AssetFileDescriptor afd = null;
+            afd = context.getAssets().openFd("musics/"+activeEmotion+"/"+activeEmotion+NUM+".mp3");
+            auxPlayer.setDataSource(afd);
+            auxPlayer.prepare();
+            MusicHandler.fadeOut(currentPlayer, 2000);
+            MusicHandler.fadeIn(auxPlayer, 2000);
+            currentPlayer = auxPlayer;
+            auxPlayer = null;
+            isStop = false;
         }
-        else {
-            playSetting(audiofileUri);
-            startFadeIn();
+        else if (activeEmotion.equals("null") && !isStop) {
+            isStop = true;
+            MusicHandler.fadeOut(currentPlayer, 2000);
+            currentPlayer = new MediaPlayer();
         }
-    }
+        else if(activeEmotion.equals("null") && isStop){
+            return;
+        }
 
-    private void playSetting(Uri audiofileUri) throws IOException {
-        mediaPlayer.stop();
-        mediaPlayer.reset();
-        mediaPlayer.setDataSource(context,audiofileUri);
-        mediaPlayer.prepare();
-        mediaPlayer.start();
-    }
-
-
-
-
-    private void startFadeIn(){
-        //Create a new Timer and Timer task to run the fading outside the main UI thread
-        final Timer timer = new Timer(true);
-        TimerTask timerTask = new TimerTask() {
+        currentPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
-            public void run() {
-                fadeInStep(deltaVolume); //Do a fade step
-                //Cancel and Purge the Timer if the desired volume has been reached
-                if(volume>=1f){
-                    timer.cancel();
-                    timer.purge();
+            public void onCompletion(MediaPlayer mp) {
+                try {
+                    if(activeEmotion.equals("null")) return;
+                    Log.d("Mypager", "onCompletion");
+                    int i = NUM+1;
+                    if(context.getAssets().list("musics/"+activeEmotion).length == i) i = 0;
+                    crossFade(activeEmotion, i);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-        };
+        });
 
-        timer.schedule(timerTask,FADE_INTERVAL,FADE_INTERVAL);
     }
 
-    private void startFadeOut(Uri audiofileUri){
-        //Create a new Timer and Timer task to run the fading outside the main UI thread
-        final Timer timer = new Timer(true);
-        TimerTask timerTask = new TimerTask() {
+    public static void fadeOut(final MediaPlayer _player, final int duration) {
+        final Handler h = new Handler();
+        h.postDelayed(new Runnable() {
+            private float time = duration;
+            private float volume = 0.0f;
+
             @Override
             public void run() {
-                fadeOutStep(deltaVolume); //Do a fade step
-                //Cancel and Purge the Timer if the desired volume has been reached
-                if(volume<=0f){
-                    timer.cancel();
-                    timer.purge();
-                    try {
-                        playSetting(audiofileUri);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    startFadeIn();
+                if (!_player.isPlaying())
+                    _player.start();
+                // can call h again after work!
+                time -= 100;
+                volume = (1f * time) / duration;
+                _player.setVolume(volume, volume);
+                if (time > 0)
+                    h.postDelayed(this, 100);
+                else {
+                    _player.stop();
+                    _player.release();
                 }
             }
-        };
+        }, 100); // 1 second delay (takes millis)
 
-        timer.schedule(timerTask,FADE_INTERVAL,FADE_INTERVAL);
-    }
-
-    private void fadeInStep(float deltaVolume){
-        mediaPlayer.setVolume(volume, volume);
-        volume += deltaVolume;
 
     }
-    private void fadeOutStep(float deltaVolume){
-        mediaPlayer.setVolume(volume, volume);
-        volume -= deltaVolume;
 
+    public static void fadeIn(final MediaPlayer _player, final int duration) {
+        final Handler h = new Handler();
+        h.postDelayed(new Runnable() {
+            private float time = 0.0f;
+            private float volume = 0.0f;
+
+            @Override
+            public void run() {
+                if (!_player.isPlaying())
+                    _player.start();
+                // can call h again after work!
+                time += 100;
+                volume = (1f * time) / duration;
+                _player.setVolume(volume, volume);
+                if (time < duration)
+                    h.postDelayed(this, 100);
+            }
+        }, 100); // 1 second delay (takes millis)
+
+    }
+
+    public void reset(){
+        currentPlayer.release();
     }
 }

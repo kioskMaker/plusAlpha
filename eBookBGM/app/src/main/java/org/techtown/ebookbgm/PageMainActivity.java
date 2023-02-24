@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
@@ -19,6 +20,7 @@ import android.os.Message;
 import android.text.TextPaint;
 import android.util.Log;
 import android.util.Pair;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -43,6 +45,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -54,10 +57,11 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class PageMainActivity extends AppCompatActivity implements View.OnClickListener{
+public class PageMainActivity extends AppCompatActivity implements View.OnClickListener {
     private ClickableViewPager pagesView;
     private static final int FADEIN_MSG = 101;
-    private static final int FADEOUT_MSG = 1;
+    private static final int FADEOUT_MSG = 102;
+    private static final int FADEOUTIN_MSG = 103;
     String FILE_NAME = "books/";
     String BOOK_NAME = null;
     int sentence_num = 0;
@@ -77,12 +81,13 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
     Pair<String, Integer> prev_music;
     ArrayList<Integer> pages_sentences = new ArrayList<>();
     final int[] endPoint = new int[1];
+    int FADE_DELAY = 100;
+    MusicHandler musicHandler = new MusicHandler(this, new MediaPlayer(), new MediaPlayer());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_page_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
 
@@ -122,7 +127,6 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
         // to get ViewPager width and height we have to wait global layout
         pagerSetting();
 
-
         // 하단바를 눌렀을 때 프래그먼트가 변경되게 함
         setBottomNavigationView();
 
@@ -130,25 +134,25 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
         loadEmotionPointInfos();
 
         // music player init
-        musicPlayerInit();
 
         // page 변경 시 동작
 
     }
+
     private String readText(int input) throws IOException {
         AssetManager assetManager = getAssets();
         InputStream is = assetManager.open(FILE_NAME + BOOK_NAME + "/ch" + input + ".txt");
 
         StringBuilder text = new StringBuilder();
-        try{
+        try {
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String line;
-            while ((line = br.readLine()) != null){
+            while ((line = br.readLine()) != null) {
                 text.append("   " + line);
                 text.append("\n");
             }
             br.close();
-        } catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return text.toString();
@@ -164,7 +168,7 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
-    private void setBottomNavigationView(){
+    private void setBottomNavigationView() {
         BottomNavigationView bottom_menu = findViewById(R.id.bottom_menu);
         bottom_menu.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -206,22 +210,21 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
         });
     }
 
-    private void loadEmotionPointInfos(){
-        String path = INTERNAL_STORAGE_FILE_PATH + BOOK_NAME +"/";
-        File chapterEmotionListFile = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME + CHAPTER +".txt");
-        if(ChapterEmotionListExist()){
+    private void loadEmotionPointInfos() {
+        String path = INTERNAL_STORAGE_FILE_PATH + BOOK_NAME + "/";
+        File chapterEmotionListFile = new File(path + CHAPTER_EMOTION_LIST_FILE_NAME + CHAPTER + ".txt");
+        if (ChapterEmotionListExist()) {
             Log.d("Myhttp", "ChapterEmotionListExist success");
             try {
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(chapterEmotionListFile));
                 String line;
-                while((line = bufferedReader.readLine()) != null){
+                while ((line = bufferedReader.readLine()) != null) {
                     String[] strings = line.split(",");
-                    if(Integer.parseInt(strings[0]) == CHAPTER){
+                    if (Integer.parseInt(strings[0]) == CHAPTER) {
                         emoLine_dir.put(Integer.parseInt(strings[2]), new Pair<>(strings[1], Integer.parseInt(strings[3])));
                     }
                 }
                 bufferedReader.close();
-                pagerSetting();
                 Log.d("Mypager", checkEmoInfos());
 
             } catch (FileNotFoundException e) {
@@ -231,13 +234,11 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
                 Log.d("Myhttp", "Button IOException");
                 e.printStackTrace();
             }
-        }
-        else {
+        } else {
             try {
                 Log.d("Myhttp", "ChapterEmotionListExist failed");
                 setProgressBar();
                 readText30line(CHAPTER);
-                pagerSetting();
             } catch (IOException e) {
                 Log.d("Myhttp", "Button IOException");
                 e.printStackTrace();
@@ -276,8 +277,8 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
         RapidAPIonThread(chapter, temp, 0);
     }
 
-    private void RapidAPIonThread(int chapter, ArrayList<String> text, int point){
-        new Thread(()->{
+    private void RapidAPIonThread(int chapter, ArrayList<String> text, int point) {
+        new Thread(() -> {
             try {
                 RapidAPI(chapter, text, point);
             } catch (IOException e) {
@@ -322,24 +323,23 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
                     e.printStackTrace();
                 }
                 try {
-                    if(jsonObject.get("emotions_detected") != null){
-                        emotion_line_list.add(toStringArray((JSONArray)jsonObject.get("emotions_detected")));
+                    if (jsonObject.get("emotions_detected") != null) {
+                        emotion_line_list.add(toStringArray((JSONArray) jsonObject.get("emotions_detected")));
                         String str = "";
-                        for(int i=0;i<emotion_line_list.get(emotion_line_list.size()-1).length;i++){
-                            str = str + emotion_line_list.get(emotion_line_list.size()-1)[i] + ", ";
+                        for (int i = 0; i < emotion_line_list.get(emotion_line_list.size() - 1).length; i++) {
+                            str = str + emotion_line_list.get(emotion_line_list.size() - 1)[i] + ", ";
 
                         }
-                        Log.d("Myhttp", "" + (emotion_line_list.size()-1) + " : " + str);
+                        Log.d("Myhttp", "" + (emotion_line_list.size() - 1) + " : " + str);
                     }
                 } catch (JSONException e) {
                     Log.d("Myhttp", "JSONException 2");
                     e.printStackTrace();
                 }
                 //TO-DO 수정
-                if(text.size() > point+1){
-                    RapidAPIonThread(chapter, text, point+1);
-                }
-                else {
+                if (text.size() > point + 1) {
+                    RapidAPIonThread(chapter, text, point + 1);
+                } else {
                     getEmotionPoint();
                     organizeEmotionPointInfos();
                     emotionLineMapping();
@@ -360,15 +360,15 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void writeChapterEmotionList() throws IOException {
-        String path = INTERNAL_STORAGE_FILE_PATH + BOOK_NAME +"/";
+        String path = INTERNAL_STORAGE_FILE_PATH + BOOK_NAME + "/";
         File file = new File(path);
-        if(!file.exists()){
+        if (!file.exists()) {
             file.mkdirs();
         }
-        File chapterEmotionListFile = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME+ CHAPTER +".txt");
-        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(path+CHAPTER_EMOTION_LIST_FILE_NAME+ CHAPTER +".txt"));
+        File chapterEmotionListFile = new File(path + CHAPTER_EMOTION_LIST_FILE_NAME + CHAPTER + ".txt");
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(path + CHAPTER_EMOTION_LIST_FILE_NAME + CHAPTER + ".txt"));
         String str = "";
-        for (int key : emoLine_dir.keySet()){
+        for (int key : emoLine_dir.keySet()) {
             str = str + CHAPTER + "," + emoLine_dir.get(key).first + "," + key + "," + emoLine_dir.get(key).second + "\n";
         }
         bufferedWriter.write(str);
@@ -376,62 +376,60 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
         bufferedWriter.close();
     }
 
-    private Boolean ChapterEmotionListExist(){
-        String path = INTERNAL_STORAGE_FILE_PATH + BOOK_NAME +"/";
+    private Boolean ChapterEmotionListExist() {
+        String path = INTERNAL_STORAGE_FILE_PATH + BOOK_NAME + "/";
         File file = new File(path);
-        if(file.exists()) {
-            File file2 = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME + CHAPTER + ".txt");
-            if(file2.exists()){
+        if (file.exists()) {
+            File file2 = new File(path + CHAPTER_EMOTION_LIST_FILE_NAME + CHAPTER + ".txt");
+            if (file2.exists()) {
                 Log.d("Myhttp", "file exist");
                 return true;
-            }
-            else {
+            } else {
                 Log.d("Myhttp", "file not exist");
                 return false;
             }
-        }
-        else {
+        } else {
 
             return false;
         }
     }
 
-    private void getEmotionPoint(){
-        for(int i=0;i<emotion_line_list.size();i++){
-            for(int j=0;j<emotion_line_list.get(i).length;j++){
-                f(i, emotion_line_list.get(i)[j], 0 );
+    private void getEmotionPoint() {
+        for (int i = 0; i < emotion_line_list.size(); i++) {
+            for (int j = 0; j < emotion_line_list.get(i).length; j++) {
+                f(i, emotion_line_list.get(i)[j], 0);
             }
         }
     }
 
-    private void f(int x, String emotion_str, int count){
+    private void f(int x, String emotion_str, int count) {
         Boolean hit = false;
-        if(x == emotion_line_list.size()){
-            if(count >= 2){
-                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(CHAPTER, emotion_str, x-count, x-1);
+        if (x == emotion_line_list.size()) {
+            if (count >= 2) {
+                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(CHAPTER, emotion_str, x - count, x - 1);
                 emotionPointInfos.add(emotionPointInfo);
             }
             return;
         }
 
-        if(emotion_line_list.get(x).length == 0){
-            if(count >= 2){
-                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(CHAPTER, emotion_str, x-count, x-1);
+        if (emotion_line_list.get(x).length == 0) {
+            if (count >= 2) {
+                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(CHAPTER, emotion_str, x - count, x - 1);
                 emotionPointInfos.add(emotionPointInfo);
             }
-            return ;
+            return;
         }
 
-        for(int i=0;i<emotion_line_list.get(x).length;i++){
+        for (int i = 0; i < emotion_line_list.get(x).length; i++) {
             String emo_list_strarr_point = emotion_line_list.get(x)[i];
-            if(emo_list_strarr_point.equals(emotion_str)){
-                f(x+1, emotion_str, count+1);
+            if (emo_list_strarr_point.equals(emotion_str)) {
+                f(x + 1, emotion_str, count + 1);
                 hit = true;
             }
         }
-        if(!hit){
-            if(count >= 2){
-                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(CHAPTER, emotion_str, x-count, x-1);
+        if (!hit) {
+            if (count >= 2) {
+                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(CHAPTER, emotion_str, x - count, x - 1);
                 emotionPointInfos.add(emotionPointInfo);
             }
         }
@@ -439,37 +437,37 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
     }
 
     public static String[] toStringArray(JSONArray array) {
-        if(array==null)
+        if (array == null)
             return new String[0];
 
-        String[] arr=new String[array.length()];
-        for(int i=0; i<arr.length; i++) {
-            arr[i]=array.optString(i);
+        String[] arr = new String[array.length()];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = array.optString(i);
         }
         return arr;
     }
 
-    private void organizeEmotionPointInfos(){
-        for(int i=0;i<emotionPointInfos.size();i++){
-            for(int j=i+1;j<emotionPointInfos.size();j++){
+    private void organizeEmotionPointInfos() {
+        for (int i = 0; i < emotionPointInfos.size(); i++) {
+            for (int j = i + 1; j < emotionPointInfos.size(); j++) {
                 EmotionPointInfo Info1 = emotionPointInfos.get(i);
                 EmotionPointInfo Info2 = emotionPointInfos.get(j);
-                if(Info1.getEmotion_type().equals(Info2.getEmotion_type()) && Info1.getEnd() == Info2.getEnd() && Info1.getStart() < Info2.getStart()){
+                if (Info1.getEmotion_type().equals(Info2.getEmotion_type()) && Info1.getEnd() == Info2.getEnd() && Info1.getStart() < Info2.getStart()) {
                     emotionPointInfos.remove(Info2);
                 }
             }
         }
     }
 
-    private String checkEmoInfos(){
+    private String checkEmoInfos() {
         String str = "";
-        for (int key : emoPage_dir.keySet()){
+        for (int key : emoPage_dir.keySet()) {
             str = str + "Emotion_type : " + emoPage_dir.get(key).first + " START : " + key + " END : " + emoPage_dir.get(key).second + "\n";
         }
         return str;
     }
 
-    private void setProgressBar(){
+    private void setProgressBar() {
         progressDialog = new ProgressDialog(this, android.R.style.Theme_Material_Dialog_Alert);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);      // Style - 원 모양 설정
         progressDialog.setMessage("Loading...");                           // Message - 표시할 텍스트
@@ -478,196 +476,42 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
         progressDialog.show();
     }
 
-    private void emotionLineMapping(){
-        for(int i=0;i<emotionPointInfos.size();i++){
+    private void emotionLineMapping() {
+        for (int i = 0; i < emotionPointInfos.size(); i++) {
             EmotionPointInfo info = emotionPointInfos.get(i);
-            if(emoLine_dir.get(info.getStart()) != null){
-                if(emoLine_dir.get(info.getStart()).second+2 <= info.getEnd()){
-                    emoLine_dir.put(emoLine_dir.get(info.getStart()).second+1, new Pair<>(info.getEmotion_type(), info.getEnd()));
-                }
-                else if(emoLine_dir.get(info.getStart()).second >= info.getEnd()+2){
-                    emoLine_dir.put(info.getEnd()+1, new Pair<>(emoLine_dir.get(info.getStart()).first, emoLine_dir.get(info.getStart()).second));
+            if (emoLine_dir.get(info.getStart()) != null) {
+                if (emoLine_dir.get(info.getStart()).second + 2 <= info.getEnd()) {
+                    emoLine_dir.put(emoLine_dir.get(info.getStart()).second + 1, new Pair<>(info.getEmotion_type(), info.getEnd()));
+                } else if (emoLine_dir.get(info.getStart()).second >= info.getEnd() + 2) {
+                    emoLine_dir.put(info.getEnd() + 1, new Pair<>(emoLine_dir.get(info.getStart()).first, emoLine_dir.get(info.getStart()).second));
                     emoLine_dir.put(info.getStart(), new Pair<>(info.getEmotion_type(), info.getEnd()));
-                }
-                else if(emoLine_dir.get(info.getStart()).second == info.getEnd()+1){
+                } else if (emoLine_dir.get(info.getStart()).second == info.getEnd() + 1) {
+
+                } else if (emoLine_dir.get(info.getStart()).second + 1 == info.getEnd()) {
+                    emoLine_dir.put(info.getStart(), new Pair<>(info.getEmotion_type(), info.getEnd()));
+                } else if (emoLine_dir.get(info.getStart()).second == info.getEnd()) {
 
                 }
-                else if(emoLine_dir.get(info.getStart()).second+1 == info.getEnd()){
-                    emoLine_dir.put(info.getStart(), new Pair<>(info.getEmotion_type(), info.getEnd()));
-                }
-                else if(emoLine_dir.get(info.getStart()).second == info.getEnd()){
-
-                }
-            }
-            else {
+            } else {
                 emoLine_dir.put(info.getStart(), new Pair<>(info.getEmotion_type(), info.getEnd()));
             }
         }
     }
 
-    private void musicPlayerInit(){
-        mediaPlayer = new MediaPlayer();
-        prev_music = new Pair<>("null", NUM);
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                stopPlayer();
-                NUM++;
-                AssetFileDescriptor afd = null;
-                try {
-                    if(getAssets().list("musics/" + prev_music.first).length < NUM) NUM = 1;
-                    afd = getAssets().openFd("musics/"+prev_music.first+"/"+prev_music.first+NUM+".mp3");
-                    prev_music = new Pair<>(prev_music.first, NUM);
-                    mediaPlayer.setDataSource(afd);
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
 
-                } catch (IOException e) {
-                    Log.d("Mymusic", "onClick IOException");
-                    e.printStackTrace();
-                }
-                startFadeIn();
-                isInit = true;
-            }
-        });
-    }
-
-    private void play(String emotion){
-        if(!emotion.equals("null")){
-            prev_music = new Pair<>(emotion, NUM);
-        }
-        if(emotion.equals("null") && prev_music.first.equals("null")){
-            return;
-        }
-
-        if(isInit){
-            NUM = 1;
-            startFadeOut(emotion, NUM);
-        }
-        else{
-            AssetFileDescriptor afd = null;
-            try {
-                if(emotion.equals(prev_music.first)){
-                    NUM++;
-                    if(getAssets().list("musics/" + prev_music.first).length < NUM) NUM = 1;
-                }
-                else {
-                    NUM = 1;
-                }
-                afd = getAssets().openFd("musics/"+emotion+"/"+emotion+NUM+".mp3");
-                mediaPlayer.setDataSource(afd);
-                mediaPlayer.prepare();
-                mediaPlayer.start();
-
-            } catch (IOException e) {
-                Log.d("Mymusic", "onClick IOException");
-                e.printStackTrace();
-            }
-            startFadeIn();
-            isInit = true;
-        }
-    }
-
-    private void startFadeIn(){
-        mHandler.removeMessages(FADEIN_MSG);
-        mHandler.sendMessageDelayed(
-                mHandler.obtainMessage(FADEIN_MSG), 100);
-    }
-
-    private void fadeInStep(float deltaVolume){
-        mediaPlayer.setVolume(volume, volume);
-        volume += deltaVolume;
-
-    }
-
-    private void startFadeOut(String emotion, int num){
-        volume = 1f;
-        // The duration of the fade
-        final int FADE_DURATION = 3000;
-
-        // The amount of time between volume changes. The smaller this is, the smoother the fade
-        final int FADE_INTERVAL = 250;
-
-        // Calculate the number of fade steps
-        int numberOfSteps = FADE_DURATION / FADE_INTERVAL;
-
-        // Calculate by how much the volume changes each step
-        final float deltaVolume = volume / numberOfSteps;
-
-        // Create a new Timer and Timer task to run the fading outside the main UI thread
-        final Timer timer = new Timer(true);
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-
-                //Do a fade step
-                fadeOutStep(deltaVolume);
-
-                //Cancel and Purge the Timer if the desired volume has been reached
-                if(volume <= 0f){
-                    timer.cancel();
-                    timer.purge();
-                    resetPlayer(emotion, num);
-                }
-            }
-        };
-
-        timer.schedule(timerTask,FADE_INTERVAL,FADE_INTERVAL);
-    }
-
-    private void fadeOutStep(float deltaVolume){
-        mediaPlayer.setVolume(volume, volume);
-        volume -= deltaVolume;
-    }
-
-    // Release the player from memory
-    private void resetPlayer(String emotion, int num){
-        stopPlayer();
-        if(emotion.equals("null")){
-            isInit = false;
-            return;
-        }
-        AssetFileDescriptor afd = null;
-        try {
-            afd = getAssets().openFd("musics/"+ emotion +"/" +emotion + num +".mp3");
-            mediaPlayer.setDataSource(afd);
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-
-        } catch (IOException e) {
-            Log.d("Mymusic", "onClick IOException");
-            e.printStackTrace();
-        }
-        startFadeIn();
-        isInit = true;
-
-    }
-
-    private void stopPlayer() {
-        mediaPlayer.stop();
-        mediaPlayer.reset();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        stopPlayer();
-        mediaPlayer.release();
-    }
-
-    private void lineToPage(){
-        for(int key : emoLine_dir.keySet()){
+    private void lineToPage() {
+        for (int key : emoLine_dir.keySet()) {
             int start = -1;
             int end = -1;
 
-            for(int i=0;i<pages_sentences.size();i++){
-                if((key * 30) <= pages_sentences.get(i)) {
+            for (int i = 0; i < pages_sentences.size(); i++) {
+                if ((key * 30) <= pages_sentences.get(i)) {
                     start = i;
                     break;
                 }
             }
-            for(int i=0;i<pages_sentences.size();i++){
-                if((emoLine_dir.get(key).second * 30) <= pages_sentences.get(i)) {
+            for (int i = 0; i < pages_sentences.size(); i++) {
+                if ((emoLine_dir.get(key).second * 30) <= pages_sentences.get(i)) {
                     end = i;
                     break;
                 }
@@ -676,7 +520,7 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    private void pagerSetting(){
+    private void pagerSetting() {
         String str = null;
         try {
             str = readText(CHAPTER);
@@ -699,27 +543,33 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
                 pagesView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 TextPagerAdapter textPagerAdapter = (TextPagerAdapter) pagesView.getAdapter();
 
-                for(int i=0;i<textPagerAdapter.getCount();i++){
+                for (int i = 0; i < textPagerAdapter.getCount(); i++) {
                     String str = textPagerAdapter.getPageTexts(i).toString();
-                    if(str.length() >= 2){
-                        if(str.substring(str.length()-2).equals("\n")){
+                    if (str.length() >= 2) {
+                        if (str.substring(str.length() - 2).equals("\n")) {
                             String[] strings = str.split("\n");
                             sentence_num += strings.length;
-                        }
-                        else{
+                        } else {
                             String[] strings = str.split("\n");
-                            sentence_num += strings.length-1;
+                            sentence_num += strings.length - 1;
                         }
                         pages_sentences.add(sentence_num);
                     }
-                    Log.d("Mypager", ""+sentence_num);
+                    Log.d("Mypager", "" + sentence_num);
                 }
                 lineToPage();
+
                 Log.d("Mypager", checkEmoInfos());
-                if(emoPage_dir.get(0) != null){
+                if (emoPage_dir.get(0) != null) {
                     //Music start
                     endPoint[0] = emoPage_dir.get(0).second;
-                    play(emoPage_dir.get(0).first);
+
+                    try {
+                        musicHandler.crossFade(emoPage_dir.get(0).first, new Random().nextInt(getAssets().list("musics/"+emoPage_dir.get(0).first).length) +1);
+                    } catch (IOException e) {
+                        Log.d("Mypager", "musicHandler IOE");
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -732,13 +582,23 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onPageSelected(int position) {
                 Log.d("Mypager", "position : " + position);
-                if(emoPage_dir.get(position) != null){
+                if (emoPage_dir.get(position) != null) {
                     // music start
+                    try {
+                        musicHandler.crossFade(emoPage_dir.get(position).first,new Random().nextInt(getAssets().list("musics/"+emoPage_dir.get(0).first).length) +1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    endPoint[0] = emoPage_dir.get(position).second;
                     emoPage_dir.remove(position);
 
-                }
-                else if(position == endPoint[0]+1){
+                } else if (position == endPoint[0] + 1) {
                     // music stop
+                    try {
+                        musicHandler.crossFade("null",1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -749,37 +609,9 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
         });
     }
 
-    private Handler mHandler = new Handler() {
-        @Override public void handleMessage(Message msg) {
-            switch (msg.what) {
-                // Upon receiving the fade pulse, we have the view perform a
-                // fade and then enqueue a new message to pulse at the desired
-                // next time.
-                case FADEIN_MSG: {
-                    if(volume >= 1f) {
-                        mHandler.removeMessages(FADEIN_MSG);
-                        break;
-                    }
-                    mediaPlayer.setVolume(volume, volume);
-                    volume += 0.03;
-                    mHandler.sendMessageDelayed(
-                            mHandler.obtainMessage(FADEIN_MSG), 100);
-                    break;
-                }
-                case FADEOUT_MSG: {
-                    if(volume <= 0f) {
-                        mHandler.removeMessages(FADEIN_MSG);
-                        break;
-                    }
-                    mediaPlayer.setVolume(volume, volume);
-                    volume -= 0.03;
-                    mHandler.sendMessageDelayed(
-                            mHandler.obtainMessage(FADEOUT_MSG), 100);
-                    break;
-                }
-                default:
-                    super.handleMessage(msg);
-            }
-        }
-    };
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        musicHandler.reset();
+    }
 }

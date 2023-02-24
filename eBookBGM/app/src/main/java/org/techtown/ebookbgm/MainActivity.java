@@ -70,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-<<<<<<< Updated upstream
 
         Button buttonMusic = findViewById(R.id.button_music);
         buttonMusic.setOnClickListener(new View.OnClickListener() {
@@ -81,18 +80,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button buttonMusic = findViewById(R.id.button_music);
-        buttonMusic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), MusicPlayerActivity.class);
-                startActivity(intent);
-            }
-        });
-
-
-=======
->>>>>>> Stashed changes
     }
 
 }
