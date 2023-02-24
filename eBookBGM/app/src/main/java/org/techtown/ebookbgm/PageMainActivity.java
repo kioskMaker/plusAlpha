@@ -14,14 +14,11 @@ import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextPaint;
 import android.util.Log;
-<<<<<<< Updated upstream
 import android.util.Pair;
-=======
-import android.view.LayoutInflater;
-import android.view.Menu;
->>>>>>> Stashed changes
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -57,8 +54,10 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class PageMainActivity extends AppCompatActivity implements View.OnClickListener {
+public class PageMainActivity extends AppCompatActivity implements View.OnClickListener{
     private ClickableViewPager pagesView;
+    private static final int FADEIN_MSG = 101;
+    private static final int FADEOUT_MSG = 1;
     String FILE_NAME = "books/";
     String BOOK_NAME = null;
     int sentence_num = 0;
@@ -77,6 +76,7 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
     int NUM = 1;
     Pair<String, Integer> prev_music;
     ArrayList<Integer> pages_sentences = new ArrayList<>();
+    final int[] endPoint = new int[1];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,15 +84,8 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_page_main);
-
-<<<<<<< Updated upstream
         Toolbar toolbar = findViewById(R.id.toolbar);
-        final int[] endPoint = new int[1];
-=======
 
-        setContentView(R.layout.activity_page_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
->>>>>>> Stashed changes
         pagesView = (ClickableViewPager) findViewById(R.id.pages);
         Intent intent = getIntent();
         BOOK_NAME = intent.getExtras().getString("bookname");
@@ -126,60 +119,8 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
-        String str = null;
-        try {
-            str = readText(CHAPTER);
-        } catch (IOException e) {
-            Log.d("Mypager", "onCreate IOException");
-            e.printStackTrace();
-        }
-        String finalStr = str;
-
         // to get ViewPager width and height we have to wait global layout
-        pagesView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                PageSplitter pageSplitter = new PageSplitter(pagesView.getWidth(), pagesView.getHeight(), 1, 0);
-                TextPaint textPaint = new TextPaint();
-                textPaint.setTextSize(getResources().getDimension(R.dimen.text_size));
-                textPaint.setColor(Color.BLACK);
-                pageSplitter.append(finalStr, textPaint);
-
-                pagesView.setAdapter(new TextPagerAdapter(getSupportFragmentManager(), pageSplitter.getPages()));
-                pagesView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                TextPagerAdapter textPagerAdapter = (TextPagerAdapter) pagesView.getAdapter();
-
-                for (int i = 0; i < textPagerAdapter.getCount(); i++) {
-                    String str = textPagerAdapter.getPageTexts(i).toString();
-                    if (str.length() >= 2) {
-                        if (str.substring(str.length() - 2).equals("\n")) {
-                            String[] strings = str.split("\n");
-<<<<<<< Updated upstream
-                            sentence_num += strings.length;
-                        }
-                        else{
-                            String[] strings = str.split("\n");
-                            sentence_num += strings.length-1;
-=======
-                            sentence_num = strings.length;
-                        } else {
-                            String[] strings = str.split("\n");
-                            sentence_num = strings.length - 1;
->>>>>>> Stashed changes
-                        }
-                        pages_sentences.add(sentence_num);
-                    }
-                    Log.d("Mypager", "" + sentence_num);
-                }
-                lineToPage();
-                Log.d("Mypager", checkEmoInfos());
-                if(emoPage_dir.get(0) != null){
-                    //Music start
-                    endPoint[0] = emoPage_dir.get(0).second;
-                    play(emoPage_dir.get(0).first);
-                }
-            }
-        });
+        pagerSetting();
 
 
         // 하단바를 눌렀을 때 프래그먼트가 변경되게 함
@@ -192,34 +133,6 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
         musicPlayerInit();
 
         // page 변경 시 동작
-        pagesView.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                Log.d("Mypager", "position : " + position);
-                if(emoPage_dir.get(position) != null){
-                    // music start
-                    play(emoPage_dir.get(position).first);
-                    endPoint[0] = emoPage_dir.get(position).second;
-                    emoPage_dir.remove(position);
-
-                }
-                else if(position == endPoint[0]+1){
-                    // music stop
-                    play("null");
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-
 
     }
     private String readText(int input) throws IOException {
@@ -293,7 +206,6 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
         });
     }
 
-<<<<<<< Updated upstream
     private void loadEmotionPointInfos(){
         String path = INTERNAL_STORAGE_FILE_PATH + BOOK_NAME +"/";
         File chapterEmotionListFile = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME + CHAPTER +".txt");
@@ -309,6 +221,7 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
                     }
                 }
                 bufferedReader.close();
+                pagerSetting();
                 Log.d("Mypager", checkEmoInfos());
 
             } catch (FileNotFoundException e) {
@@ -323,59 +236,40 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
             try {
                 Log.d("Myhttp", "ChapterEmotionListExist failed");
                 setProgressBar();
-                readText10line(CHAPTER);
-                lineToPage();
+                readText30line(CHAPTER);
+                pagerSetting();
             } catch (IOException e) {
                 Log.d("Myhttp", "Button IOException");
                 e.printStackTrace();
             }
         }
     }
-=======
 
-    }
-
-    private String readText(int input) throws IOException {
-        AssetManager assetManager = getAssets();
-        InputStream is = assetManager.open(FILE_NAME + BOOK_NAME + "/ch" + input + ".txt");
->>>>>>> Stashed changes
-
-    private void readText10line(int chapter) throws IOException {
+    private void readText30line(int chapter) throws IOException {
         AssetManager assetManager = getAssets();
         InputStream is = assetManager.open(PARENT_FILE_PATH + BOOK_NAME + "/chapter_en/ch" + chapter + "_eng.txt");
         StringBuilder text = new StringBuilder();
-<<<<<<< Updated upstream
         int count = 0;
         ArrayList<String> temp = new ArrayList<>();
-=======
->>>>>>> Stashed changes
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String line;
             while ((line = br.readLine()) != null) {
-<<<<<<< Updated upstream
-                if (count == 10) {
+                if (count == 30) {
                     temp.add(text.toString());
                     text = new StringBuilder();
                     count = 0;
 
                 }
                 text.append(line);
-=======
-                text.append("   " + line);
->>>>>>> Stashed changes
                 text.append("\n");
                 count++;
             }
             br.close();
-<<<<<<< Updated upstream
             temp.add(text.toString());
 
         } catch (IOException e) {
-            Log.d("Myhttp", "readtext10line IOException");
-=======
-        } catch (IOException e) {
->>>>>>> Stashed changes
+            Log.d("Myhttp", "readtext30line IOException");
             e.printStackTrace();
         }
         Log.d("Myhttp", "chapter : " + chapter + " temp size : " + temp.size());
@@ -450,7 +344,14 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
                     organizeEmotionPointInfos();
                     emotionLineMapping();
                     writeChapterEmotionList();
+                    Intent intent = new Intent(getApplicationContext(), PageMainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.putExtra("bookname", BOOK_NAME);
+                    intent.putExtra("chapter", CHAPTER);
+                    startActivity(intent);
+                    finish();
                     progressDialog.dismiss();
+
                 }
 
             }
@@ -606,6 +507,7 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
 
     private void musicPlayerInit(){
         mediaPlayer = new MediaPlayer();
+        prev_music = new Pair<>("null", NUM);
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
@@ -633,6 +535,9 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
     private void play(String emotion){
         if(!emotion.equals("null")){
             prev_music = new Pair<>(emotion, NUM);
+        }
+        if(emotion.equals("null") && prev_music.first.equals("null")){
+            return;
         }
 
         if(isInit){
@@ -664,30 +569,9 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void startFadeIn(){
-        volume = 0f;
-        final int FADE_DURATION = 3000; //The duration of the fade
-        //The amount of time between volume changes. The smaller this is, the smoother the fade
-        final int FADE_INTERVAL = 250;
-        final int MAX_VOLUME = 1; //The volume will increase from 0 to 1
-        int numberOfSteps = FADE_DURATION/FADE_INTERVAL; //Calculate the number of fade steps
-        //Calculate by how much the volume changes each step
-        final float deltaVolume = MAX_VOLUME / (float)numberOfSteps;
-
-        //Create a new Timer and Timer task to run the fading outside the main UI thread
-        final Timer timer = new Timer(true);
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                fadeInStep(deltaVolume); //Do a fade step
-                //Cancel and Purge the Timer if the desired volume has been reached
-                if(volume>=1f){
-                    timer.cancel();
-                    timer.purge();
-                }
-            }
-        };
-
-        timer.schedule(timerTask,FADE_INTERVAL,FADE_INTERVAL);
+        mHandler.removeMessages(FADEIN_MSG);
+        mHandler.sendMessageDelayed(
+                mHandler.obtainMessage(FADEIN_MSG), 100);
     }
 
     private void fadeInStep(float deltaVolume){
@@ -765,8 +649,9 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
+        stopPlayer();
         mediaPlayer.release();
     }
 
@@ -776,13 +661,13 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
             int end = -1;
 
             for(int i=0;i<pages_sentences.size();i++){
-                if((key * 10) <= pages_sentences.get(i)) {
+                if((key * 30) <= pages_sentences.get(i)) {
                     start = i;
                     break;
                 }
             }
             for(int i=0;i<pages_sentences.size();i++){
-                if((emoLine_dir.get(key).second * 10) <= pages_sentences.get(i)) {
+                if((emoLine_dir.get(key).second * 30) <= pages_sentences.get(i)) {
                     end = i;
                     break;
                 }
@@ -791,23 +676,110 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
-        return true;
+    private void pagerSetting(){
+        String str = null;
+        try {
+            str = readText(CHAPTER);
+        } catch (IOException e) {
+            Log.d("Mypager", "onCreate IOException");
+            e.printStackTrace();
+        }
+        String finalStr = str;
+
+        pagesView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                PageSplitter pageSplitter = new PageSplitter(pagesView.getWidth(), pagesView.getHeight(), 1, 0);
+                TextPaint textPaint = new TextPaint();
+                textPaint.setTextSize(getResources().getDimension(R.dimen.text_size));
+                textPaint.setColor(Color.BLACK);
+                pageSplitter.append(finalStr, textPaint);
+
+                pagesView.setAdapter(new TextPagerAdapter(getSupportFragmentManager(), pageSplitter.getPages()));
+                pagesView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                TextPagerAdapter textPagerAdapter = (TextPagerAdapter) pagesView.getAdapter();
+
+                for(int i=0;i<textPagerAdapter.getCount();i++){
+                    String str = textPagerAdapter.getPageTexts(i).toString();
+                    if(str.length() >= 2){
+                        if(str.substring(str.length()-2).equals("\n")){
+                            String[] strings = str.split("\n");
+                            sentence_num += strings.length;
+                        }
+                        else{
+                            String[] strings = str.split("\n");
+                            sentence_num += strings.length-1;
+                        }
+                        pages_sentences.add(sentence_num);
+                    }
+                    Log.d("Mypager", ""+sentence_num);
+                }
+                lineToPage();
+                Log.d("Mypager", checkEmoInfos());
+                if(emoPage_dir.get(0) != null){
+                    //Music start
+                    endPoint[0] = emoPage_dir.get(0).second;
+                    play(emoPage_dir.get(0).first);
+                }
+            }
+        });
+        pagesView.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                Log.d("Mypager", "position : " + position);
+                if(emoPage_dir.get(position) != null){
+                    // music start
+                    emoPage_dir.remove(position);
+
+                }
+                else if(position == endPoint[0]+1){
+                    // music stop
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Log.d("Mypager", "menu clicking");
-        switch (item.getItemId()){
-            case android.R.id.home:{ //toolbar의 back키 눌렀을 때 동작
-                finish();
-                return  true;
+    private Handler mHandler = new Handler() {
+        @Override public void handleMessage(Message msg) {
+            switch (msg.what) {
+                // Upon receiving the fade pulse, we have the view perform a
+                // fade and then enqueue a new message to pulse at the desired
+                // next time.
+                case FADEIN_MSG: {
+                    if(volume >= 1f) {
+                        mHandler.removeMessages(FADEIN_MSG);
+                        break;
+                    }
+                    mediaPlayer.setVolume(volume, volume);
+                    volume += 0.03;
+                    mHandler.sendMessageDelayed(
+                            mHandler.obtainMessage(FADEIN_MSG), 100);
+                    break;
+                }
+                case FADEOUT_MSG: {
+                    if(volume <= 0f) {
+                        mHandler.removeMessages(FADEIN_MSG);
+                        break;
+                    }
+                    mediaPlayer.setVolume(volume, volume);
+                    volume -= 0.03;
+                    mHandler.sendMessageDelayed(
+                            mHandler.obtainMessage(FADEOUT_MSG), 100);
+                    break;
+                }
+                default:
+                    super.handleMessage(msg);
             }
         }
-        return super.onOptionsItemSelected(item);
-    }
-
-
+    };
 }

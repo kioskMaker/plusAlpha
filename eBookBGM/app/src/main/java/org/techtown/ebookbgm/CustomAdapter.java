@@ -2,15 +2,23 @@ package org.techtown.ebookbgm;
 
 
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
@@ -35,8 +43,23 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(view.getContext(), ChapterList.class);
-                    intent.putExtra("bookname", textView.getText().toString());
-                    view.getContext().startActivity(intent);
+                    AssetManager am = view.getContext().getAssets();
+
+                    try {
+                        List<String> mapList = Arrays.asList(am.list("books/" + textView.getText().toString()));
+
+                        if (mapList.contains("chapterlist.txt")) {
+                            intent.putExtra("bookname", textView.getText().toString());
+                            view.getContext().startActivity(intent);
+                        }
+                        else {
+                            Toast.makeText(view.getContext(), "No book", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch ( IOException ex){
+                        ex.printStackTrace();
+                    }
+
+
                 }
             });
         }

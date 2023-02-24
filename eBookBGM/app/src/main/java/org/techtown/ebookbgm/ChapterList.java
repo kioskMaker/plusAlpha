@@ -66,7 +66,7 @@ public class ChapterList extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Intent intent = new Intent(getApplicationContext(), LoadActivity.class);
+                Intent intent = new Intent(getApplicationContext(), PageMainActivity.class);
                 intent.putExtra("bookname", BOOK_NAME);
                 intent.putExtra("chapter", position+1);
                 startActivity(intent);

@@ -32,7 +32,7 @@ public class BookListActivity extends AppCompatActivity {
 
         for(int i=0;i<strings.length;i++){
 
-            int getId  =getResources().getIdentifier(strings[i], "drawable", this.getPackageName());
+            int getId = getResources().getIdentifier(strings[i], "drawable", this.getPackageName());
             BookDataStructure bookDataStructure = new BookDataStructure(strings[i], getDrawable(getId));
             bookDataStructures.add(bookDataStructure);
             Log.d("Mybooklist", strings[i]);
