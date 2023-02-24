@@ -6,7 +6,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -16,8 +15,6 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
 
-import org.checkerframework.checker.units.qual.A;
-import org.checkerframework.checker.units.qual.C;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -49,7 +45,7 @@ public class LoadActivity extends AppCompatActivity {
     ArrayList<EmotionPointInfo> emotionPointInfos = new ArrayList<EmotionPointInfo>();
     TextView textView_analysis;
     private ProgressDialog progressDialog = null;
-    int chapter;
+    int CHAPTER;
     int chapter_num;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +54,7 @@ public class LoadActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         BOOK_NAME = intent.getExtras().getString("bookname");
-        chapter = intent.getExtras().getInt("chapter");
+        CHAPTER = intent.getExtras().getInt("chapter");
 
         AssetManager assetManager = getAssets();
         try {
@@ -75,7 +71,7 @@ public class LoadActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String path = INTERNAL_STORAGE_FILE_PATH + BOOK_NAME +"/";
-                File chapterEmotionListFile = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME + chapter +".txt");
+                File chapterEmotionListFile = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME + CHAPTER +".txt");
                 if(ChapterEmotionListExist()){
                     Log.d("Myhttp", "ChapterEmotionListExist success");
                     try {
@@ -83,8 +79,8 @@ public class LoadActivity extends AppCompatActivity {
                         String line;
                         while((line = bufferedReader.readLine()) != null){
                             String[] strings = line.split(",");
-                            if(Integer.parseInt(strings[0]) == chapter){
-                                EmotionPointInfo info = new EmotionPointInfo(chapter, strings[1], Integer.parseInt(strings[2]), Integer.parseInt(strings[3]));
+                            if(Integer.parseInt(strings[0]) == CHAPTER){
+                                EmotionPointInfo info = new EmotionPointInfo(CHAPTER, strings[1], Integer.parseInt(strings[2]), Integer.parseInt(strings[3]));
                                 emotionPointInfos.add(info);
                             }
                         }
@@ -103,7 +99,7 @@ public class LoadActivity extends AppCompatActivity {
                     try {
                         Log.d("Myhttp", "ChapterEmotionListExist failed");
                         setProgressBar();
-                        readText10line(chapter);
+                        readText10line(CHAPTER);
                     } catch (IOException e) {
                         Log.d("Myhttp", "Button IOException");
                         e.printStackTrace();
@@ -225,8 +221,8 @@ public class LoadActivity extends AppCompatActivity {
         if(!file.exists()){
             file.mkdirs();
         }
-        File chapterEmotionListFile = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME+chapter+".txt");
-        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(path+CHAPTER_EMOTION_LIST_FILE_NAME+chapter+".txt"));
+        File chapterEmotionListFile = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME+ CHAPTER +".txt");
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(path+CHAPTER_EMOTION_LIST_FILE_NAME+ CHAPTER +".txt"));
         String str = "";
         for(int i=0;i<emotionPointInfos.size();i++){
             EmotionPointInfo info = emotionPointInfos.get(i);
@@ -242,7 +238,7 @@ public class LoadActivity extends AppCompatActivity {
         String path = INTERNAL_STORAGE_FILE_PATH + BOOK_NAME +"/";
         File file = new File(path);
         if(file.exists()) {
-            File file2 = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME + chapter + ".txt");
+            File file2 = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME + CHAPTER + ".txt");
             if(file2.exists()){
                 Log.d("Myhttp", "file exist");
                 return true;
@@ -270,7 +266,7 @@ public class LoadActivity extends AppCompatActivity {
         Boolean hit = false;
         if(x == emotion_line_list.size()){
             if(count >= 2){
-                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(chapter, emotion_str, x-count, x-1);
+                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(CHAPTER, emotion_str, x-count, x-1);
                 emotionPointInfos.add(emotionPointInfo);
             }
             return;
@@ -278,7 +274,7 @@ public class LoadActivity extends AppCompatActivity {
 
         if(emotion_line_list.get(x).length == 0){
             if(count >= 2){
-                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(chapter, emotion_str, x-count, x-1);
+                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(CHAPTER, emotion_str, x-count, x-1);
                 emotionPointInfos.add(emotionPointInfo);
             }
             return ;
@@ -293,7 +289,7 @@ public class LoadActivity extends AppCompatActivity {
         }
         if(!hit){
             if(count >= 2){
-                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(chapter, emotion_str, x-count, x-1);
+                EmotionPointInfo emotionPointInfo = new EmotionPointInfo(CHAPTER, emotion_str, x-count, x-1);
                 emotionPointInfos.add(emotionPointInfo);
             }
         }
