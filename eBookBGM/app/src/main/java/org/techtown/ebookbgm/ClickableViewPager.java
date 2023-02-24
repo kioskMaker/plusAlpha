@@ -6,6 +6,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.viewpager.widget.ViewPager;
 
 public class ClickableViewPager extends ViewPager {
@@ -22,6 +23,14 @@ public class ClickableViewPager extends ViewPager {
         super(context, attrs);
 
         setup();
+    }
+
+
+    @Override
+    public void addOnPageChangeListener(@NonNull OnPageChangeListener listener) {
+        super.addOnPageChangeListener(listener);
+
+
     }
 
     private void setup() {
