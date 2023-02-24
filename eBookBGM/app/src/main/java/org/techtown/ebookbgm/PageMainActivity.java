@@ -16,7 +16,12 @@ import android.os.Bundle;
 
 import android.text.TextPaint;
 import android.util.Log;
+<<<<<<< Updated upstream
 import android.util.Pair;
+=======
+import android.view.LayoutInflater;
+import android.view.Menu;
+>>>>>>> Stashed changes
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -52,7 +57,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class PageMainActivity extends AppCompatActivity implements View.OnClickListener{
+public class PageMainActivity extends AppCompatActivity implements View.OnClickListener {
     private ClickableViewPager pagesView;
     String FILE_NAME = "books/";
     String BOOK_NAME = null;
@@ -77,12 +82,18 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_page_main);
 
+<<<<<<< Updated upstream
         Toolbar toolbar = findViewById(R.id.toolbar);
         final int[] endPoint = new int[1];
-        pagesView = (ClickableViewPager) findViewById(R.id.pages);
+=======
 
+        setContentView(R.layout.activity_page_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+>>>>>>> Stashed changes
+        pagesView = (ClickableViewPager) findViewById(R.id.pages);
         Intent intent = getIntent();
         BOOK_NAME = intent.getExtras().getString("bookname");
         CHAPTER = intent.getExtras().getInt("chapter");
@@ -91,6 +102,7 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
 
 
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().hide();
         getSupportActionBar().setTitle(null);
 
@@ -102,10 +114,10 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onViewPagerClick(ViewPager viewPager) {
                 Log.d("Mypager", "click");
-                if(getSupportActionBar().isShowing()){
+                if (getSupportActionBar().isShowing()) {
                     bottomNavigationView.setVisibility(View.GONE);
                     getSupportActionBar().hide();
-                } else{
+                } else {
                     getSupportActionBar().show();
                     bottomNavigationView.setVisibility(View.VISIBLE);
                 }
@@ -137,20 +149,27 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
                 pagesView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 TextPagerAdapter textPagerAdapter = (TextPagerAdapter) pagesView.getAdapter();
 
-                for(int i=0;i<textPagerAdapter.getCount();i++){
+                for (int i = 0; i < textPagerAdapter.getCount(); i++) {
                     String str = textPagerAdapter.getPageTexts(i).toString();
-                    if(str.length() >= 2){
-                        if(str.substring(str.length()-2).equals("\n")){
+                    if (str.length() >= 2) {
+                        if (str.substring(str.length() - 2).equals("\n")) {
                             String[] strings = str.split("\n");
+<<<<<<< Updated upstream
                             sentence_num += strings.length;
                         }
                         else{
                             String[] strings = str.split("\n");
                             sentence_num += strings.length-1;
+=======
+                            sentence_num = strings.length;
+                        } else {
+                            String[] strings = str.split("\n");
+                            sentence_num = strings.length - 1;
+>>>>>>> Stashed changes
                         }
                         pages_sentences.add(sentence_num);
                     }
-                    Log.d("Mypager", ""+sentence_num);
+                    Log.d("Mypager", "" + sentence_num);
                 }
                 lineToPage();
                 Log.d("Mypager", checkEmoInfos());
@@ -242,12 +261,12 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 switch (item.getItemId()) {
                     case R.id.back:
-                        if(CHAPTER == 1) {
+                        if (CHAPTER == 1) {
                             Toast.makeText(getApplicationContext(), "First Chapter", Toast.LENGTH_LONG).show();
                             break;
                         }
                         intent.putExtra("bookname", BOOK_NAME);
-                        intent.putExtra("chapter", CHAPTER-1);
+                        intent.putExtra("chapter", CHAPTER - 1);
                         startActivity(intent);
                         finish();
                         break;
@@ -259,12 +278,12 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
-                        if(CHAPTER == MAX_CHAPTER) {
+                        if (CHAPTER == MAX_CHAPTER) {
                             Toast.makeText(getApplicationContext(), "Last Chapter", Toast.LENGTH_LONG).show();
                             break;
                         }
                         intent.putExtra("bookname", BOOK_NAME);
-                        intent.putExtra("chapter", CHAPTER+1);
+                        intent.putExtra("chapter", CHAPTER + 1);
                         startActivity(intent);
                         finish();
                         break;
@@ -274,6 +293,7 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
         });
     }
 
+<<<<<<< Updated upstream
     private void loadEmotionPointInfos(){
         String path = INTERNAL_STORAGE_FILE_PATH + BOOK_NAME +"/";
         File chapterEmotionListFile = new File(path+CHAPTER_EMOTION_LIST_FILE_NAME + CHAPTER +".txt");
@@ -311,17 +331,29 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
             }
         }
     }
+=======
+
+    }
+
+    private String readText(int input) throws IOException {
+        AssetManager assetManager = getAssets();
+        InputStream is = assetManager.open(FILE_NAME + BOOK_NAME + "/ch" + input + ".txt");
+>>>>>>> Stashed changes
 
     private void readText10line(int chapter) throws IOException {
         AssetManager assetManager = getAssets();
         InputStream is = assetManager.open(PARENT_FILE_PATH + BOOK_NAME + "/chapter_en/ch" + chapter + "_eng.txt");
         StringBuilder text = new StringBuilder();
+<<<<<<< Updated upstream
         int count = 0;
         ArrayList<String> temp = new ArrayList<>();
+=======
+>>>>>>> Stashed changes
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String line;
             while ((line = br.readLine()) != null) {
+<<<<<<< Updated upstream
                 if (count == 10) {
                     temp.add(text.toString());
                     text = new StringBuilder();
@@ -329,14 +361,21 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
 
                 }
                 text.append(line);
+=======
+                text.append("   " + line);
+>>>>>>> Stashed changes
                 text.append("\n");
                 count++;
             }
             br.close();
+<<<<<<< Updated upstream
             temp.add(text.toString());
 
         } catch (IOException e) {
             Log.d("Myhttp", "readtext10line IOException");
+=======
+        } catch (IOException e) {
+>>>>>>> Stashed changes
             e.printStackTrace();
         }
         Log.d("Myhttp", "chapter : " + chapter + " temp size : " + temp.size());
@@ -751,4 +790,24 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
             emoPage_dir.put(start, new Pair<>(emoLine_dir.get(key).first, end));
         }
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d("Mypager", "menu clicking");
+        switch (item.getItemId()){
+            case android.R.id.home:{ //toolbar의 back키 눌렀을 때 동작
+                finish();
+                return  true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
 }
