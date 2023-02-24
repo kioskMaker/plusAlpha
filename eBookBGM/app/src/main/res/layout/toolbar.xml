@@ -29,7 +29,7 @@
                 android:layout_height="match_parent"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
-                android:backgroundTint="#FFE2E7EC"
+                android:backgroundTint="#E2E7EC"
                 android:gravity="center"
                 android:text="제1장"
                 android:textSize="20sp" />
