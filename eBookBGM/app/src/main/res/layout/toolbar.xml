@@ -12,8 +12,10 @@
 
     <androidx.appcompat.widget.ActionMenuView
         android:id="@+id/menu"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize">
+        android:layout_width="wrap_content"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_gravity="center"
+        android:padding="15sp">
 
         <TextView
             android:id="@+id/chapter_number"
@@ -25,10 +27,8 @@
             android:backgroundTint="#DAD2D2"
             android:gravity="center"
             android:text="CHAPTER"
+            android:textColor="#000000"
             android:textSize="20sp" />
-
-
-
 
 
     </androidx.appcompat.widget.ActionMenuView>

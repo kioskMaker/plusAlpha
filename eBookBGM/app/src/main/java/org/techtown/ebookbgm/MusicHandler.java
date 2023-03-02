@@ -2,16 +2,11 @@ package org.techtown.ebookbgm;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MusicHandler {
     static MediaPlayer currentPlayer;

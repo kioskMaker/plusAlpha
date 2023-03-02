@@ -24,6 +24,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -83,6 +85,7 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
     final int[] endPoint = new int[1];
     int FADE_DELAY = 100;
     MusicHandler musicHandler = new MusicHandler(this, new MediaPlayer(), new MediaPlayer());
+    Boolean isMusicOn = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,13 +93,28 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_page_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
-
+        endPoint[0] = -999;
         pagesView = (ClickableViewPager) findViewById(R.id.pages);
         Intent intent = getIntent();
         BOOK_NAME = intent.getExtras().getString("bookname");
         CHAPTER = intent.getExtras().getInt("chapter");
         TextView toolbar_title = findViewById(R.id.chapter_number);
         toolbar_title.setText("제" + CHAPTER + "장");
+        Switch musicbutton = findViewById(R.id.musicOn);
+        musicbutton.setChecked(true);
+        musicbutton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                isMusicOn = isChecked;
+                if(!isMusicOn){
+                    try {
+                        musicHandler.crossFade("null",1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
 
 
         setSupportActionBar(toolbar);
@@ -105,22 +123,20 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
         getSupportActionBar().setTitle(null);
 
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_menu);
-        bottomNavigationView.setVisibility(View.GONE);
-
+//        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_menu);
+//        bottomNavigationView.setVisibility(View.GONE);
+//
         pagesView.setOnViewPagerClickListener(new ClickableViewPager.OnClickListener() {
             @Override
             public void onViewPagerClick(ViewPager viewPager) {
                 Log.d("Mypager", "click");
                 if (getSupportActionBar().isShowing()) {
-                    bottomNavigationView.setVisibility(View.GONE);
+//                    bottomNavigationView.setVisibility(View.GONE);
                     getSupportActionBar().hide();
                 } else {
                     getSupportActionBar().show();
-                    bottomNavigationView.setVisibility(View.VISIBLE);
+//                    bottomNavigationView.setVisibility(View.VISIBLE);
                 }
-
-
             }
         });
 
@@ -128,7 +144,7 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
         pagerSetting();
 
         // 하단바를 눌렀을 때 프래그먼트가 변경되게 함
-        setBottomNavigationView();
+//        setBottomNavigationView();
 
         // load emotion point info
         loadEmotionPointInfos();
@@ -168,47 +184,47 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
-    private void setBottomNavigationView() {
-        BottomNavigationView bottom_menu = findViewById(R.id.bottom_menu);
-        bottom_menu.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-                Intent intent = new Intent(getApplicationContext(), PageMainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                switch (item.getItemId()) {
-                    case R.id.back:
-                        if (CHAPTER == 1) {
-                            Toast.makeText(getApplicationContext(), "First Chapter", Toast.LENGTH_LONG).show();
-                            break;
-                        }
-                        intent.putExtra("bookname", BOOK_NAME);
-                        intent.putExtra("chapter", CHAPTER - 1);
-                        startActivity(intent);
-                        finish();
-                        break;
-                    case R.id.front:
-                        AssetManager as = getAssets();
-                        int MAX_CHAPTER;
-                        try {
-                            MAX_CHAPTER = as.list(FILE_NAME + BOOK_NAME + "/chapter_en").length;
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                        if (CHAPTER == MAX_CHAPTER) {
-                            Toast.makeText(getApplicationContext(), "Last Chapter", Toast.LENGTH_LONG).show();
-                            break;
-                        }
-                        intent.putExtra("bookname", BOOK_NAME);
-                        intent.putExtra("chapter", CHAPTER + 1);
-                        startActivity(intent);
-                        finish();
-                        break;
-                }
-                return true;
-            }
-        });
-    }
+//    private void setBottomNavigationView() {
+//        BottomNavigationView bottom_menu = findViewById(R.id.bottom_menu);
+//        bottom_menu.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+//            @Override
+//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+//
+//                Intent intent = new Intent(getApplicationContext(), PageMainActivity.class);
+//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                switch (item.getItemId()) {
+//                    case R.id.back:
+//                        if (CHAPTER == 1) {
+//                            Toast.makeText(getApplicationContext(), "First Chapter", Toast.LENGTH_LONG).show();
+//                            break;
+//                        }
+//                        intent.putExtra("bookname", BOOK_NAME);
+//                        intent.putExtra("chapter", CHAPTER - 1);
+//                        startActivity(intent);
+//                        finish();
+//                        break;
+//                    case R.id.front:
+//                        AssetManager as = getAssets();
+//                        int MAX_CHAPTER;
+//                        try {
+//                            MAX_CHAPTER = as.list(FILE_NAME + BOOK_NAME + "/chapter_en").length;
+//                        } catch (IOException e) {
+//                            throw new RuntimeException(e);
+//                        }
+//                        if (CHAPTER == MAX_CHAPTER) {
+//                            Toast.makeText(getApplicationContext(), "Last Chapter", Toast.LENGTH_LONG).show();
+//                            break;
+//                        }
+//                        intent.putExtra("bookname", BOOK_NAME);
+//                        intent.putExtra("chapter", CHAPTER + 1);
+//                        startActivity(intent);
+//                        finish();
+//                        break;
+//                }
+//                return true;
+//            }
+//        });
+//    }
 
     private void loadEmotionPointInfos() {
         String path = INTERNAL_STORAGE_FILE_PATH + BOOK_NAME + "/";
@@ -566,6 +582,7 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
 
                     try {
                         musicHandler.crossFade(emoPage_dir.get(0).first, new Random().nextInt(getAssets().list("musics/"+emoPage_dir.get(0).first).length) +1);
+                        Toast.makeText(getApplicationContext(), "bgm playing...", Toast.LENGTH_SHORT).show();
                     } catch (IOException e) {
                         Log.d("Mypager", "musicHandler IOE");
                         e.printStackTrace();
@@ -582,20 +599,22 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onPageSelected(int position) {
                 Log.d("Mypager", "position : " + position);
-                if (emoPage_dir.get(position) != null) {
+                if (emoPage_dir.get(position) != null && isMusicOn) {
                     // music start
                     try {
-                        musicHandler.crossFade(emoPage_dir.get(position).first,new Random().nextInt(getAssets().list("musics/"+emoPage_dir.get(0).first).length) +1);
+                        musicHandler.crossFade(emoPage_dir.get(position).first,new Random().nextInt(getAssets().list("musics/"+emoPage_dir.get(position).first).length) +1);
+                        Toast.makeText(getApplicationContext(), "bgm playing...", Toast.LENGTH_SHORT).show();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     endPoint[0] = emoPage_dir.get(position).second;
                     emoPage_dir.remove(position);
 
-                } else if (position == endPoint[0] + 1) {
+                } else if (position == endPoint[0] + 1 && isMusicOn) {
                     // music stop
                     try {
                         musicHandler.crossFade("null",1);
+                        Toast.makeText(getApplicationContext(), "bgm stop...", Toast.LENGTH_SHORT).show();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -613,5 +632,23 @@ public class PageMainActivity extends AppCompatActivity implements View.OnClickL
     protected void onDestroy() {
         super.onDestroy();
         musicHandler.reset();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d("Mypager", "menu clicking");
+        switch (item.getItemId()){
+            case android.R.id.home:{ //toolbar의 back키 눌렀을 때 동작
+                finish();
+                return  true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
